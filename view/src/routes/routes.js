@@ -4,7 +4,8 @@ const routes = {
         label: '2FA - Shamir FIDO',
         code: 'home',
         title: 'Homepage',
-        visibility: 'link'
+        visibility: 'link',
+        protected: false,
     },
     login: {
         label: 'Login',
@@ -12,6 +13,7 @@ const routes = {
         title: 'Login',
         visibility: 'navbar',
         back: 'home',
+        protected: false,
     },
     register: {
         label: 'Register',
@@ -19,6 +21,7 @@ const routes = {
         title: 'Register',
         visibility: 'navbar',
         back: 'home',
+        protected: false,
     },
     protected: {
         label: 'Protected Area',
@@ -26,9 +29,25 @@ const routes = {
         title: 'Protected area',
         visibility: 'navbar',
         back: 'home',
-    }
+        protected: true,
+    },
+    logout: {
+        label: 'Logout',
+        code: 'logout',
+        title: 'Logout',
+        visibility: 'navbar',
+        back: 'home',
+        protected: true,
+    } 
 };
 
+const routesAsArray = () => {
+    const routesArray = [];
+    Object.keys(routes).forEach(key => routesArray.push(routes[key]));
+    return routesArray;
+}
+
 module.exports = {
-    routes
+    routes,
+    routesAsArray
 }
