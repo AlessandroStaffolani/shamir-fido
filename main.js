@@ -8,16 +8,19 @@ let win;
 
 function createWindow() {
     // Creazione della finestra del browser.
-    win = new BrowserWindow({ width: 800, height: 600 });
+    win = new BrowserWindow({ width: 1366, height: 800 });
 
     // e viene caricato il file index.html della nostra app.
-    win.loadURL(
+    /*TODO Before build load file not url */
+    /* win.loadURL(
         url.format({
             pathname: path.join(__dirname, 'view', 'public', 'index.html'),
             protocol: 'file:',
             slashes: true
         })
-    );
+    ); */
+    // Only for react production
+    win.loadURL('http://localhost:3000')
 
     // Open the DevTools.
     win.webContents.openDevTools();
