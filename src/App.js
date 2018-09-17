@@ -72,14 +72,16 @@ export default class App extends Component {
         return (
             <div className="body">
                 <Navbar handleLinkNavigation={this.handleLinkNavigation} userLogged={this.state.userLogged} />
-                <div className="content">
-                    <div className="container mt-5">
-                        <div className="row">
-                            <div className="col-12">{this.state.content}</div>
+                <div className="wrapper">
+                    <div className="content">
+                        <div className="container mt-5">
+                            <div className="row">
+                                <div className="col-12">{this.state.content}</div>
+                            </div>
                         </div>
                     </div>
+                    <Footer />
                 </div>
-                <Footer />
             </div>
         );
     }
