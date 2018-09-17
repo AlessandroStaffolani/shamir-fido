@@ -4,6 +4,7 @@ import { routes } from './routes/routes';
 import Login from './components/Login';
 import RegisterForm from './components/RegisterForm';
 import Protected from './components/Protected';
+import Footer from './components/Footer';
 
 export default class App extends Component {
     constructor(props) {
@@ -13,7 +14,6 @@ export default class App extends Component {
             currentPage: routes.home,
             content: ''
         };
-        
 
         this.handleLinkNavigation = this.handleLinkNavigation.bind(this);
     }
@@ -72,13 +72,14 @@ export default class App extends Component {
         return (
             <div className="body">
                 <Navbar handleLinkNavigation={this.handleLinkNavigation} userLogged={this.state.userLogged} />
-                <div className="container mt-5">
-                    <div className="row">
-                        <div className="col-12">
-                            {this.state.content}
+                <div className="content">
+                    <div className="container mt-5">
+                        <div className="row">
+                            <div className="col-12">{this.state.content}</div>
                         </div>
                     </div>
                 </div>
+                <Footer />
             </div>
         );
     }
