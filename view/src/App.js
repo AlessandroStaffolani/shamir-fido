@@ -13,6 +13,7 @@ export default class App extends Component {
             currentPage: routes.home,
             content: ''
         };
+        
 
         this.handleLinkNavigation = this.handleLinkNavigation.bind(this);
     }
