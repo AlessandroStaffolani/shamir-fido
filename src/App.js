@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import Navbar from './components/Navbar';
 import { routes } from './routes/routes';
-import Login from './components/Login';
-import RegisterForm from './components/RegisterForm';
-import Protected from './components/Protected';
+import Login from './components/pages/Login';
+import Register from './components/pages/Register';
+import Protected from './components/pages/Protected';
 import Footer from './components/Footer';
 
 export default class App extends Component {
@@ -57,7 +57,7 @@ export default class App extends Component {
                 content = <Login />;
                 break;
             case routes.register.code:
-                content = <RegisterForm />;
+                content = <Register />;
                 break;
             case routes.protected.code:
                 content = userLogged ? <Protected userLogged={userLogged} /> : <Login />;

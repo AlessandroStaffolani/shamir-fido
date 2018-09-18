@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ExternalLink from './ExternalLink';
+import ExternalLink from './base/ExternalLink';
 const electron = window.require('electron');
 
 export default class Footer extends Component {

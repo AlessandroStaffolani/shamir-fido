@@ -11,7 +11,6 @@ const validateRegisterInput = data => {
         numShards: false
     };
     let isValid = true;
-    console.log(data);
 
     // Check if value is empty (also if not exist) if not set empty string
     // Check only for required fields
