@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { validateRegisterInput, isValidIp } from '../validation/register';
 
 const SHARDS_OPTIONS = {
     maxShards: 3,
@@ -10,38 +11,28 @@ export default class RegisterForm extends Component {
         super(props);
         this.state = {
             form: {
-                username: {
-                    value: '',
-                    error: false
-                },
-                password: {
-                    value: '',
-                    error: false
-                },
-                device: {
-                    value: '',
-                    error: false
-                },
-                pin: {
-                    value: '',
-                    error: false,
-                    disabled: true
-                },
-                secretFile: {
-                    file: null,
-                    error: false,
-                    label: 'Choose your secret file'
-                },
-                numShards: {
-                    value: SHARDS_OPTIONS.defaultMinShards,
-                    error: false
-                }
+                username: '',
+                password: '',
+                device: '',
+                pin: '',
+                secretFile: 'Choose your secret file',
+                numShards: SHARDS_OPTIONS.defaultMinShards.toString()
+            },
+            pinDisabled: true,
+            errors: {
+                username: false,
+                password: false,
+                device: false,
+                pin: false,
+                secretFile: false,
+                numShards: false
             }
         };
 
         this.secretFileInput = React.createRef();
 
         this.handleInputChange = this.handleInputChange.bind(this);
+        this.handleDeviceChange = this.handleDeviceChange.bind(this);
         this.handleFileChange = this.handleFileChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -61,25 +52,43 @@ export default class RegisterForm extends Component {
     handleInputChange = (event, name) => {
         const { form } = this.state;
         const value = event.target.value;
-        form[name].value = value;
+        form[name] = value;
         this.setState({ form });
+        if (name === 'device') {
+            this.handleDeviceChange();
+        }
+    };
+
+    handleDeviceChange = () => {
+        const { form } = this.state;
+        if (isValidIp(form.device)) {
+            this.setState({pinDisabled: false})
+        } else {
+            this.setState({pinDisabled: true})
+        }
     };
 
     handleFileChange = () => {
         const { form } = this.state;
         const file = this.secretFileInput.current.files[0];
-        form.secretFile.file = file;
-        form.secretFile.label = file.name;
+        form.secretFile = file.name;
         this.setState({ form });
     };
 
     handleSubmit = event => {
         event.preventDefault();
-        console.log(this.state.form);
+        const { form } = this.state;
+        const { errors, isValid } = validateRegisterInput(form);
+        if (isValid) {
+            // call submit function
+            this.setState({errors})
+        } else {
+            this.setState({errors})
+        }
     };
 
     render() {
-        const { form } = this.state;
+        const { form, errors, pinDisabled } = this.state;
 
         return (
             <div className="row">
@@ -89,84 +98,84 @@ export default class RegisterForm extends Component {
                         <hr />
                         <form onSubmit={this.handleSubmit}>
                             <div className="form-group">
-                                <label htmlFor="username">Username</label>
+                                <label htmlFor="username">Username (*)</label>
                                 <input
                                     type="username"
-                                    className={form.username.error ? 'form-control is-invalid' : 'form-control'}
+                                    className={errors.username ? 'form-control is-invalid' : 'form-control'}
                                     id="username"
                                     placeholder="Username"
-                                    value={form.username.value}
+                                    value={form.username}
                                     onChange={event => this.handleInputChange(event, 'username')}
                                 />
-                                <div className="invalid-feedback">{form.username.error}</div>
+                                <div className="invalid-feedback">{errors.username}</div>
                             </div>
                             <div className="form-group">
-                                <label htmlFor="password">Password</label>
+                                <label htmlFor="password">Password (*)</label>
                                 <input
                                     type="password"
-                                    className={form.password.error ? 'form-control is-invalid' : 'form-control'}
+                                    className={errors.password ? 'form-control is-invalid' : 'form-control'}
                                     id="password"
                                     placeholder="Password"
-                                    value={form.password.value}
+                                    value={form.password}
                                     onChange={event => this.handleInputChange(event, 'password')}
                                 />
-                                <div className="invalid-feedback">{form.password.error}</div>
+                                <div className="invalid-feedback">{errors.password}</div>
                                 <small className="text-muted form-help">Alphanumeric password with min length of 8</small>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="device">Device</label>
                                 <input
                                     type="device"
-                                    className={form.device.error ? 'form-control is-invalid' : 'form-control'}
+                                    className={errors.device ? 'form-control is-invalid' : 'form-control'}
                                     id="device"
                                     placeholder="Device ip"
-                                    value={form.device.value}
+                                    value={form.device}
                                     onChange={event => this.handleInputChange(event, 'device')}
                                 />
-                                <div className="invalid-feedback">{form.device.error}</div>
+                                <div className="invalid-feedback">{errors.device}</div>
                                 <small className="text-muted form-help">Add you second device ip for 2FA authentication</small>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="pin">Pin</label>
                                 <input
                                     type="password"
-                                    className={form.pin.error ? 'form-control is-invalid' : 'form-control'}
+                                    className={errors.pin ? 'form-control is-invalid' : 'form-control'}
                                     id="pin"
                                     placeholder="Pin"
-                                    disabled={form.pin.disabled}
-                                    value={form.pin.value}
+                                    disabled={pinDisabled}
+                                    value={form.pin}
                                     onChange={event => this.handleInputChange(event, 'pin')}
                                 />
-                                <div className="invalid-feedback">{form.pin.error}</div>
+                                <div className="invalid-feedback">{errors.pin}</div>
                                 <small className="text-muted form-help">Numeric pin with lenght of 6</small>
                             </div>
                             <div className="form-group">
                                 <div className="custom-file">
                                     <input
                                         type="file"
-                                        className={form.secretFile.error ? 'custom-file-input is-invalid' : 'custom-file-input'}
+                                        className={errors.secretFile ? 'custom-file-input is-invalid' : 'custom-file-input'}
                                         id="secretFile"
                                         ref={this.secretFileInput}
                                         onChange={this.handleFileChange}
                                     />
                                     <label className="custom-file-label" htmlFor="secretFile">
-                                        {form.secretFile.label}
+                                        {form.secretFile}
                                     </label>
-                                    <div className="invalid-feedback">{form.secretFile.error}</div>
+                                    <div className="invalid-feedback">{errors.secretFile}</div>
                                     <small className="text-muted form-help">Click to add your file with a secret</small>
                                 </div>
                             </div>
                             <div className="form-group">
-                                <label htmlFor="numShards">Min number of shards</label>
+                                <label htmlFor="numShards">Min number of shards (*)</label>
                                 <select
                                     id="numShards"
-                                    className={form.numShards.error ? 'custom-select is-invalid' : 'custom-select'}
-                                    value={form.numShards.value}
+                                    className={errors.numShards ? 'custom-select is-invalid' : 'custom-select'}
+                                    value={form.numShards}
                                     onChange={event => this.handleInputChange(event, 'numShards')}
                                 >
                                     {this.createShardOptions()}
                                 </select>
-                                <div className="invalid-feedback">{form.numShards.error}</div>
+                                <div className="invalid-feedback">{errors.numShards}</div>
                                 <small className="text-muted form-help">Select the minum number of shards to get master secret</small>
                             </div>
                             <div className="text-right">
@@ -174,6 +183,8 @@ export default class RegisterForm extends Component {
                                     Register
                                 </button>
                             </div>
+                            <hr />
+                            <small className="text-muted">(*) Field is required</small>
                         </form>
                     </div>
                 </div>
