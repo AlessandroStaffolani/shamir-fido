@@ -1,78 +1,57 @@
 import React, { Component } from 'react';
+import LoginFirstStep from '../Forms/LoginFirstStep';
+import LoginSecondStep from '../Forms/LoginSecondStep';
 
 export default class Login extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            form: {
-                username: {
-                    value: '',
-                    error: false
-                },
-                passCode: {
-                    value: '',
-                    error: false
-                }
-            }
+            currentStep: 1,
+            finalStep: 2,
+            userData: false,
         };
 
-        this.handleInputChange = this.handleInputChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handlePostFirstStep = this.handlePostFirstStep.bind(this);
+        this.handlePostSecondStep = this.handlePostSecondStep.bind(this);
     }
 
-    handleInputChange = (event, name) => {
-        const { form } = this.state;
-        const value = event.target.value;
-        form[name].value = value;
-        this.setState({ form });
+    handlePostFirstStep = data => {
+        // Should contain current user information
+        console.log(data);
+        if (data.success) {
+            this.setState({
+                userData: data.user,
+                currentStep: 2
+            })
+        }
     };
 
-    handleSubmit = (event) => {
-        event.preventDefault();
-        console.log(this.state.form);
+    handlePostSecondStep = data => {
+        // Data maybe is not necessary, if correct need only to redirect to protected area
+        console.log(data)
     }
 
     render() {
-        const { form } = this.state;
+        const { currentStep, finalStep } = this.state;
 
         return (
             <div className="row">
                 <div className="col-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3">
                     <div className="form-wrapper">
-                        <h3>Login</h3>
+                        <div className="d-flex align-items-center">
+                            <h3 className="d-inline-block w-50">Login</h3>
+                            <span className="step-status w-50 text-right">
+                                Step: {currentStep} / {finalStep}
+                            </span>
+                        </div>
                         <hr />
-                        <form onSubmit={this.handleSubmit}>
-                            <div className="form-group">
-                                <label htmlFor="username">Username</label>
-                                <input
-                                    type="username"
-                                    className={form.username.error ? 'form-control is-invalid' : 'form-control'}
-                                    id="username"
-                                    placeholder="Username"
-                                    value={form.username.value}
-                                    onChange={event => this.handleInputChange(event, 'username')}
-                                />
-                                <div className="invalid-feedback">{form.username.error}</div>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="passCode">Password or Pin</label>
-                                <input
-                                    type="password"
-                                    className={form.passCode.error ? 'form-control is-invalid' : 'form-control'}
-                                    id="passCode"
-                                    placeholder="Password or Pin"
-                                    value={form.passCode.value}
-                                    onChange={event => this.handleInputChange(event, 'passCode')}
-                                />
-                                <div className="invalid-feedback">{form.passCode.error}</div>
-                                <small className="text-muted form-help">Add your registration password or pin</small>
-                            </div>
-                            <div className="text-right">
-                                <button type="submit" className="btn btn-primary">
-                                    Login
-                                </button>
-                            </div>
-                        </form>
+                        {currentStep === 1 ? (
+                            <LoginFirstStep handlePostSubmit={this.handlePostFirstStep} submitLabel="Next" />
+                        ) : currentStep === 2 ? (
+                            <LoginSecondStep handlePostSubmit={this.handlePostSecondStep} submitLabel="Login" />
+                        ) : (
+                            ''
+                        )}
                     </div>
                 </div>
             </div>
