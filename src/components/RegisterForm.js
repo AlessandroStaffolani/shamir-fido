@@ -38,6 +38,7 @@ export default class RegisterForm extends Component {
                 }
             }
         };
+
         this.secretFileInput = React.createRef();
 
         this.handleInputChange = this.handleInputChange.bind(this);
