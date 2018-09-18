@@ -23,6 +23,11 @@ const validateRegisterInput = data => {
             errors.device = 'Device ip is not correct';
             isValid = false;
         }
+
+        if (isEmpty(data.pin)) {
+            errors.pin = 'If you are using device method pin field is required';
+            isValid = false;
+        }
     } else if (validator.equals(data.secretFile, 'Choose your secret file')) {
         errors.device = 'One between device and secret file is required';
         errors.secretFile = 'One between device and secret file is required';

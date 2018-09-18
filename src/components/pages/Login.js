@@ -8,7 +8,7 @@ export default class Login extends Component {
         this.state = {
             currentStep: 1,
             finalStep: 2,
-            userData: false,
+            userData: null,
         };
 
         this.handlePostFirstStep = this.handlePostFirstStep.bind(this);
@@ -28,11 +28,14 @@ export default class Login extends Component {
 
     handlePostSecondStep = data => {
         // Data maybe is not necessary, if correct need only to redirect to protected area
-        console.log(data)
+        console.log(data);
+        if (data.success) {
+            this.props.handlePostLogin(data.user);
+        }
     }
 
     render() {
-        const { currentStep, finalStep } = this.state;
+        const { currentStep, finalStep, userData } = this.state;
 
         return (
             <div className="row">
@@ -48,7 +51,7 @@ export default class Login extends Component {
                         {currentStep === 1 ? (
                             <LoginFirstStep handlePostSubmit={this.handlePostFirstStep} submitLabel="Next" />
                         ) : currentStep === 2 ? (
-                            <LoginSecondStep handlePostSubmit={this.handlePostSecondStep} submitLabel="Login" />
+                            <LoginSecondStep userData={userData} handlePostSubmit={this.handlePostSecondStep} submitLabel="Login" />
                         ) : (
                             ''
                         )}

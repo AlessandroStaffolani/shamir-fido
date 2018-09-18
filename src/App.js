@@ -12,14 +12,11 @@ export default class App extends Component {
         this.state = {
             userLogged: false,
             currentPage: routes.home,
-            content: ''
+            content: <Login handlePostLogin={this.handlePostLogin} />
         };
 
         this.handleLinkNavigation = this.handleLinkNavigation.bind(this);
-    }
-
-    componentDidMount() {
-        this.setState({ content: <Login /> });
+        this.handlePostLogin = this.handlePostLogin.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -46,26 +43,43 @@ export default class App extends Component {
         }
     };
 
+    handlePostLogin = (userData) => {
+        this.setState({
+            userLogged: userData,
+            currentPage: routes.protected
+        })
+    }
+
     setAppContent = () => {
         const { currentPage, userLogged } = this.state;
+        const loginContent = <Login  handlePostLogin={this.handlePostLogin}/>;
         let content = '';
+        let updatedUserLogged = undefined;
         switch (currentPage.code) {
             case routes.home.code:
-                content = <Login />;
+                content = userLogged ? <Protected userLogged={userLogged} /> : loginContent;
                 break;
             case routes.login.code:
-                content = <Login />;
+                content = loginContent;
                 break;
             case routes.register.code:
                 content = <Register />;
                 break;
             case routes.protected.code:
-                content = userLogged ? <Protected userLogged={userLogged} /> : <Login />;
+                content = userLogged ? <Protected userLogged={userLogged} /> : loginContent;
+                break;
+            case routes.logout.code:
+                updatedUserLogged = false;
+                content = loginContent;
                 break;
             default:
-                content = <Login />;
+                content = loginContent;
         }
-        this.setState({ content });
+        const user = updatedUserLogged === undefined ? userLogged : updatedUserLogged;
+        this.setState({ 
+            content,
+            userLogged: user
+        });
     };
 
     render() {
