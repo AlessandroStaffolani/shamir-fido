@@ -3,18 +3,16 @@ const isEmpty = require('./is-empty');
 
 const validateRegisterInput = data => {
     const errors = {
-        username: false,
         password: false,
         device: false,
         pin: false,
-        secretFile: false,
+        secretFileLabel: false,
         numShards: false
     };
     let isValid = true;
 
     // Check if value is empty (also if not exist) if not set empty string
     // Check only for required fields
-    data.username = !isEmpty(data.username) ? data.username : '';
     data.password = !isEmpty(data.password) ? data.password : '';
     data.numShards = !isEmpty(data.numShards) ? data.numShards : '';
 
@@ -28,9 +26,9 @@ const validateRegisterInput = data => {
             errors.pin = 'If you are using device method pin field is required';
             isValid = false;
         }
-    } else if (validator.equals(data.secretFile, 'Choose your secret file')) {
+    } else if (validator.equals(data.secretFileLabel, 'Choose your secret file')) {
         errors.device = 'One between device and secret file is required';
-        errors.secretFile = 'One between device and secret file is required';
+        errors.secretFileLabel = 'One between device and secret file is required';
         isValid = false;
     }
 
@@ -48,16 +46,6 @@ const validateRegisterInput = data => {
 
     if (!validator.isLength(data.password, { min: 8 })) {
         errors.password = 'Password should be at least 8 characters';
-        isValid = false;
-    }
-
-    if (!validator.isLength(data.username, { min: 4 })) {
-        errors.username = 'Username should be at least 4 characters';
-        isValid = false;
-    }
-
-    if (validator.isEmpty(data.username)) {
-        errors.username = 'Username field is required';
         isValid = false;
     }
 

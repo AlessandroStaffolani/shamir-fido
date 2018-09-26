@@ -1,29 +1,12 @@
 import React, { Component } from 'react';
 import config from '../../config';
 import { validateRegisterInput, isValidIp } from '../../validation/register';
+import registerController from '../../controllers/registerController';
 
 export default class RegisterForm extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            form: {
-                username: '',
-                password: '',
-                device: '',
-                pin: '',
-                secretFile: 'Choose your secret file',
-                numShards: config.shardOptions.defaultMinShards.toString()
-            },
-            pinDisabled: true,
-            errors: {
-                username: false,
-                password: false,
-                device: false,
-                pin: false,
-                secretFile: false,
-                numShards: false
-            }
-        };
+        this.state = registerController.initForm();
 
         this.secretFileInput = React.createRef();
 
@@ -65,20 +48,37 @@ export default class RegisterForm extends Component {
     };
 
     handleFileChange = () => {
-        const { form } = this.state;
+        const { form, secretFile } = this.state;
         const file = this.secretFileInput.current.files[0];
-        form.secretFile = file.name;
-        this.setState({ form });
+        if (file) {
+            form.secretFileLabel = file.name;
+            this.setState({
+                form,
+                secretFile: file
+            });
+        } else {
+            if (secretFile === null) {
+                form.secretFileLabel = 'Choose your secret file';
+                this.setState({
+                    form,
+                    secretFile: null
+                });
+            }
+        }
     };
 
     handleSubmit = event => {
         event.preventDefault();
-        const { form } = this.state;
+        const { form, secretFile } = this.state;
         const { errors, isValid } = validateRegisterInput(form);
         if (isValid) {
             // call submit function
             this.setState({ errors });
-            this.props.handlePostSubmit(form);
+            this.props.handlePostSubmit({
+                password: form.password,
+                pin: form.pin,
+                secretFile: secretFile
+            });
         } else {
             this.setState({ errors });
         }
@@ -89,18 +89,6 @@ export default class RegisterForm extends Component {
 
         return (
             <form onSubmit={this.handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="username">Username (*)</label>
-                    <input
-                        type="username"
-                        className={errors.username ? 'form-control is-invalid' : 'form-control'}
-                        id="username"
-                        placeholder="Username"
-                        value={form.username}
-                        onChange={event => this.handleInputChange(event, 'username')}
-                    />
-                    <div className="invalid-feedback">{errors.username}</div>
-                </div>
                 <div className="form-group">
                     <label htmlFor="password">Password (*)</label>
                     <input
@@ -145,16 +133,19 @@ export default class RegisterForm extends Component {
                     <div className="custom-file">
                         <input
                             type="file"
-                            className={errors.secretFile ? 'custom-file-input is-invalid' : 'custom-file-input'}
+                            className={errors.secretFileLabel ? 'custom-file-input is-invalid' : 'custom-file-input'}
                             id="secretFile"
                             ref={this.secretFileInput}
                             onChange={this.handleFileChange}
                         />
                         <label className="custom-file-label" htmlFor="secretFile">
-                            {form.secretFile}
+                            {form.secretFileLabel}
                         </label>
-                        <div className="invalid-feedback">{errors.secretFile}</div>
-                        <small className="text-muted form-help">Click to add your file that will be used as a secret. You will need to insert this file any times you will login as 2FA authentication.</small>
+                        <div className="invalid-feedback">{errors.secretFileLabel}</div>
+                        <small className="text-muted form-help">
+                            Click to add your file that will be used as a secret. You will need to insert this file any times you will login as 2FA
+                            authentication.
+                        </small>
                     </div>
                 </div>
                 <div className="form-group">

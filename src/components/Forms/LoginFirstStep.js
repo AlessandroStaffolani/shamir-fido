@@ -7,11 +7,9 @@ export default class LoginFirstStep extends Component {
         super(props);
         this.state = {
             form: {
-                username: '',
                 password: '',
             },
             errors: {
-                username: false,
                 password: false
             }
         };
@@ -50,18 +48,6 @@ export default class LoginFirstStep extends Component {
 
         return (
             <form onSubmit={this.handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="username">Username</label>
-                    <input
-                        type="username"
-                        className={errors.username ? 'form-control is-invalid' : 'form-control'}
-                        id="username"
-                        placeholder="Username"
-                        value={form.username}
-                        onChange={event => this.handleInputChange(event, 'username')}
-                    />
-                    <div className="invalid-feedback">{errors.username}</div>
-                </div>
                 <div className="form-group">
                     <label htmlFor="password">Password</label>
                     <input

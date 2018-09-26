@@ -80,18 +80,6 @@ export default class LoginSecondStep extends Component {
                     First authentication step complete, now use one of the method listed below to complete your two-factor authentication and access to your protected area.
                 </p>
                 <div className="form-group">
-                    <label htmlFor="username">Username</label>
-                    <input
-                        type="username"
-                        className='form-control'
-                        id="username"
-                        disabled={true}
-                        placeholder="Username"
-                        value={userData.username}
-                        onChange={event => this.handleInputChange(event, 'username')}
-                    />
-                </div>
-                <div className="form-group">
                     <label htmlFor="device">Device</label>
                     <input
                         type="device"
