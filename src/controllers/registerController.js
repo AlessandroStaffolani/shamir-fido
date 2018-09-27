@@ -1,10 +1,12 @@
 import config from '../config';
-import { combine } from '../shamir';
+import { combine, add_prefix_to_shard } from '../shamir';
 import { hashString, hashFile } from '../utils/crypto-utils';
 import { textField_to_internal, internal_to_password, internal_to_textField } from '../shamir/representation';
 
 const init = () => {
-    return {};
+    return {
+        masterSecret: null
+    };
 };
 
 const initForm = () => {
@@ -45,31 +47,29 @@ const generateMasterSecret = formData => {
         }
         let fileHashPromise = null;
         if (formData.secretFile) {
-            fileHashPromise = hashFile(formData.secretFile.path).then(digest => {
-                shards.push(digest);
-                return shards;
-            })
+            fileHashPromise = hashFile(formData.secretFile.path)
+                .then(digest => {
+                    shards.push(digest);
+                    return shards;
+                })
                 .catch(err => reject(err));
         }
 
         if (fileHashPromise) {
             fileHashPromise
-            .then(shards => {
-                console.log(shards);
-                let bufferShards = shards.map(textField_to_internal);
-                console.log(bufferShards);
-                const masterSecret = combine(bufferShards);
-                resolve(masterSecret);
-                console.log(masterSecret, internal_to_textField(masterSecret));
-            })
-            .catch(err => reject(err));
+                .then(shards => {
+                    let bufferShards = shards.map((shard, i) => add_prefix_to_shard(shard, 8, i + 1));
+                    //bufferShards = shards.map(textField_to_internal);
+                    const masterSecret = combine(bufferShards);
+                    resolve(internal_to_textField(masterSecret));
+                })
+                .catch(err => reject(err));
         } else {
-            console.log(shards);
-            let bufferShards = shards.map(textField_to_internal);
-            console.log(bufferShards);
+            let bufferShards = shards.map((shard, i) => add_prefix_to_shard(shard, 8, i + 1));
+            //bufferShards = shards.map(textField_to_internal);
             const masterSecret = combine(bufferShards);
-            resolve(masterSecret);
-        } 
+            resolve(internal_to_textField(masterSecret));
+        }
     });
 };
 
