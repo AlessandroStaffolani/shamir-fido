@@ -3,6 +3,8 @@ import RegisterForm from '../Forms/RegisterForm';
 import registerController from '../../controllers/registerController';
 import config from '../../config';
 import KeyField from '../Forms/KeyField';
+import { share, newShare } from '../../shamir';
+import { internal_to_textField, password_to_internal } from '../../shamir/representation';
 
 export default class Register extends Component {
     constructor(props) {
@@ -15,10 +17,14 @@ export default class Register extends Component {
     handlePostSubmit = formData => {
         registerController
             .generateMasterSecret(formData)
-            .then(masterSecret => {
+            .then(result => {
                 // localStorage.setItem(config.masterSecretStorageKey, masterSecret);
-                this.setState({masterSecret})
-                console.log(masterSecret);
+                this.setState({ 
+                    masterSecret: result.masterSecret,
+                    shares: result.shares
+                });
+                this.props.setShares(result.shares);
+                this.props.setOriginalSecret(result.masterSecret);
             })
             .catch(err => {
                 console.log(err);
@@ -32,13 +38,15 @@ export default class Register extends Component {
                     <div className="form-wrapper">
                         <h3>Register</h3>
                         <hr />
-                        {this.state.masterSecret ?
-                            <KeyField 
+                        {this.state.masterSecret ? (
+                            <KeyField
                                 secret={this.state.masterSecret}
                                 label="Your master secret"
                                 info="Keep this key in a safe place. This key will be used to encrypt your file, without it you can't decrypt them."
-                                 />
-                            : ''}
+                            />
+                        ) : (
+                            ''
+                        )}
                         <RegisterForm handlePostSubmit={this.handlePostSubmit} />
                     </div>
                 </div>

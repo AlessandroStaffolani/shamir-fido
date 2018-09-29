@@ -5,6 +5,7 @@ import Login from './components/pages/Login';
 import Register from './components/pages/Register';
 import Protected from './components/pages/Protected';
 import Footer from './components/Footer';
+import Shamir from './components/pages/Shamir';
 
 export default class App extends Component {
     constructor(props) {
@@ -12,11 +13,15 @@ export default class App extends Component {
         this.state = {
             userLogged: false,
             currentPage: routes.home,
-            content: <Login handlePostLogin={this.handlePostLogin} />
+            content: <Login handlePostLogin={this.handlePostLogin} />,
+            shares: [],
+            originalSecret: null
         };
 
         this.handleLinkNavigation = this.handleLinkNavigation.bind(this);
         this.handlePostLogin = this.handlePostLogin.bind(this);
+        this.setShares = this.setShares.bind(this);
+        this.setOriginalSecret = this.setOriginalSecret.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -43,16 +48,24 @@ export default class App extends Component {
         }
     };
 
-    handlePostLogin = (userData) => {
+    handlePostLogin = userData => {
         this.setState({
             userLogged: userData,
             currentPage: routes.protected
-        })
-    }
+        });
+    };
+
+    setShares = shares => {
+        this.setState({ shares });
+    };
+
+    setOriginalSecret = secret => {
+        this.setState({ originalSecret: secret });
+    };
 
     setAppContent = () => {
         const { currentPage, userLogged } = this.state;
-        const loginContent = <Login  handlePostLogin={this.handlePostLogin}/>;
+        const loginContent = <Login handlePostLogin={this.handlePostLogin} />;
         let content = '';
         let updatedUserLogged = undefined;
         switch (currentPage.code) {
@@ -63,7 +76,10 @@ export default class App extends Component {
                 content = loginContent;
                 break;
             case routes.register.code:
-                content = <Register />;
+                content = <Register setShares={this.setShares} setOriginalSecret={this.setOriginalSecret} />;
+                break;
+            case routes.shamir.code:
+                content = <Shamir shares={this.state.shares} originalSecret={this.state.originalSecret} />;
                 break;
             case routes.protected.code:
                 content = userLogged ? <Protected userLogged={userLogged} /> : loginContent;
@@ -76,7 +92,7 @@ export default class App extends Component {
                 content = loginContent;
         }
         const user = updatedUserLogged === undefined ? userLogged : updatedUserLogged;
-        this.setState({ 
+        this.setState({
             content,
             userLogged: user
         });

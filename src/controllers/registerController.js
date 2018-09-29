@@ -61,17 +61,25 @@ const generateMasterSecret = formData => {
                     let bufferShards = shards.map((shard, i) => add_prefix_to_shard(shard, 8, i + 1));
                     //bufferShards = shards.map(textField_to_internal);
                     const masterSecret = combine(bufferShards);
-                    resolve(internal_to_textField(masterSecret));
+                    resolve({
+                        masterSecret: internal_to_textField(masterSecret),
+                        shares: bufferShards
+                    });
                 })
                 .catch(err => reject(err));
         } else {
             let bufferShards = shards.map((shard, i) => add_prefix_to_shard(shard, 8, i + 1));
             //bufferShards = shards.map(textField_to_internal);
             const masterSecret = combine(bufferShards);
-            resolve(internal_to_textField(masterSecret));
+            resolve({
+                masterSecret: internal_to_textField(masterSecret),
+                shares: bufferShards
+            });
         }
     });
 };
+
+
 
 export default {
     init,

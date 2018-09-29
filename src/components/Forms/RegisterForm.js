@@ -148,7 +148,7 @@ export default class RegisterForm extends Component {
                         </small>
                     </div>
                 </div>
-                <div className="form-group">
+                {/* <div className="form-group">
                     <label htmlFor="numShards">Min number of shards (*)</label>
                     <select
                         id="numShards"
@@ -160,14 +160,12 @@ export default class RegisterForm extends Component {
                     </select>
                     <div className="invalid-feedback">{errors.numShards}</div>
                     <small className="text-muted form-help">Select the minum number of shards to get master secret</small>
-                </div>
+                </div> */}
                 <div className="text-right">
                     <button type="submit" className="btn btn-primary">
                         Register
                     </button>
                 </div>
-                <hr />
-                <small className="text-muted">(*) Field is required</small>
             </form>
         );
     }

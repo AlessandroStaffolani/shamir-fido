@@ -7,6 +7,14 @@ const routes = {
         visibility: 'link',
         protected: false,
     },
+    shamir: {
+        label: 'Shamir Secret Sharing',
+        code: 'shamir',
+        title: 'Shamir Secret Sharing',
+        visibility: 'navbar',
+        back: 'home',
+        protected: false,
+    },
     login: {
         label: 'Login',
         code: 'login',

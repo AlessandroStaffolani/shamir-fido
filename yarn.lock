@@ -6032,9 +6032,9 @@ schema-utils@^0.3.0:
   dependencies:
     ajv "^5.0.0"
 
-secrets.js@^0.1.8:
-  version "0.1.8"
-  resolved "https://registry.yarnpkg.com/secrets.js/-/secrets.js-0.1.8.tgz#5b0517fadc7a8ef72082a89daa213a3f40aeb5a4"
+secrets.js-grempe@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/secrets.js-grempe/-/secrets.js-grempe-1.1.0.tgz#bb3b606dd68637ca244681a10fdee6c512049294"
 
 select-hose@^2.0.0:
   version "2.0.0"

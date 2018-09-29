@@ -66,8 +66,6 @@ export default class LoginFirstStep extends Component {
                         {saveLabel}
                     </button>
                 </div>
-                <hr />
-                <small className="text-muted">All fields are required</small>
             </form>
         );
     }
