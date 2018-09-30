@@ -9,8 +9,8 @@ export default class Shamir extends Component {
         this.state = {
             shares: props.shares,
             selectedShares: this.setSelectedSharesValues(props.shares),
-            masterSecret: null,
-            originalSecret: props.originalSecret
+            masterSecret: props.masterSecret,
+            generatedSecret: null
         };
     }
 
@@ -34,8 +34,8 @@ export default class Shamir extends Component {
                 sharesToCombine.push(share);
             }
         });
-        const masterSecret = internal_to_textField(combine(sharesToCombine));
-        this.setState({ masterSecret: masterSecret.length > 0 ? masterSecret : '' });
+        const generatedSecret = internal_to_textField(combine(sharesToCombine));
+        this.setState({ generatedSecret: generatedSecret.length > 0 ? generatedSecret : '' });
     };
 
     handleAddNewShare = e => {
@@ -57,9 +57,9 @@ export default class Shamir extends Component {
     };
 
     render() {
-        const { shares, selectedShares, originalSecret } = this.state;
+        const { shares, selectedShares, masterSecret, generatedSecret } = this.state;
 
-        if (originalSecret) {
+        if (masterSecret) {
             return (
                 <div className="row">
                     <div className="col-12 col-md-10 col-lg-8 offset-md-1 offset-lg-2">
@@ -67,14 +67,14 @@ export default class Shamir extends Component {
                             <h3>Shamir Secret Sharing</h3>
                             <hr />
                             <div className="text-center my-3">
-                                <KeyField secret={this.state.originalSecret} label="Your original secret" />
+                                <KeyField secret={masterSecret} label="Your master secret" />
                             </div>
                             <div className="text-center my-3">
-                                <KeyField secret={this.state.masterSecret} label="Your combined secret" />
+                                <KeyField secret={generatedSecret} label="Your combined secret" />
                             </div>
-                            {this.state.masterSecret && this.state.originalSecret ? (
+                            {generatedSecret && masterSecret ? (
                                 <div className="text-center">
-                                    {this.state.originalSecret === this.state.masterSecret ? (
+                                    {masterSecret === generatedSecret ? (
                                         <div className="alert alert-success " role="alert">
                                             The 2 secrets match
                                         </div>

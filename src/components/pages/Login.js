@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import LoginFirstStep from '../Forms/LoginFirstStep';
 import LoginSecondStep from '../Forms/LoginSecondStep';
+import secretController from '../../controllers/secretController';
 
 export default class Login extends Component {
     constructor(props) {
@@ -8,7 +9,7 @@ export default class Login extends Component {
         this.state = {
             currentStep: 1,
             finalStep: 2,
-            userData: null,
+            userData: null
         };
 
         this.handlePostFirstStep = this.handlePostFirstStep.bind(this);
@@ -22,7 +23,7 @@ export default class Login extends Component {
             this.setState({
                 userData: data.user,
                 currentStep: 2
-            })
+            });
         }
     };
 
@@ -30,9 +31,14 @@ export default class Login extends Component {
         // Data maybe is not necessary, if correct need only to redirect to protected area
         console.log(data);
         if (data.success) {
-            this.props.handlePostLogin(data.user);
+            secretController.generateMasterSecret(data.user).then(result => {
+                console.log(result, this.props);
+                this.props.setShares(result.shares);
+                this.props.setMasterSecret(result.masterSecret);
+                this.props.handlePostLogin(data.user);
+            });
         }
-    }
+    };
 
     render() {
         const { currentStep, finalStep, userData } = this.state;

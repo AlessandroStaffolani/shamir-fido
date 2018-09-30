@@ -1,42 +1,19 @@
-import config from '../config';
 import { combine, add_prefix_to_shard } from '../shamir';
 import { hashString, hashFile } from '../utils/crypto-utils';
-import { textField_to_internal, internal_to_password, internal_to_textField } from '../shamir/representation';
-
-const init = () => {
-    return {
-        masterSecret: null
-    };
-};
-
-const initForm = () => {
-    return {
-        form: {
-            password: '',
-            device: '',
-            pin: '',
-            secretFileLabel: 'Choose your secret file',
-            numShards: config.shardOptions.defaultMinShards.toString()
-        },
-        secretFile: null,
-        pinDisabled: true,
-        errors: {
-            password: false,
-            device: false,
-            pin: false,
-            secretFileLabel: false,
-            numShards: false
-        }
-    };
-};
+import { internal_to_textField } from '../shamir/representation';
 
 /**
- *
+ * 
  * @param {Object} formData The registration data and it contain these fields:
  *  formData = {
  *      password: string,
  *      pin: string, [optional]
  *      secretFile: File, [optional]
+ * }
+ * @returns {Promise} The promise if nothing is wrong return this object: 
+ *  result = {
+ *      masterSecret: string,  // The generated master secret
+ *      shares: Array          // Array of shares used to create the secret
  * }
  */
 const generateMasterSecret = formData => {
@@ -82,7 +59,5 @@ const generateMasterSecret = formData => {
 
 
 export default {
-    init,
-    initForm,
     generateMasterSecret
 };

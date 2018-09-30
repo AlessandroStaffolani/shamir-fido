@@ -8,13 +8,14 @@ export default class LoginSecondStep extends Component {
             form: {
                 device: '',
                 pin: '',
-                secretFile: 'Choose your secret file'
+                secretFileLabel: 'Choose your secret file'
             },
             errors: {
                 device: false,
                 pin: false,
-                secretFile: false
+                secretFileLabel: false
             },
+            secretFile: null,
             pinDisabled: true,
             userData: props.userData
         };
@@ -47,22 +48,40 @@ export default class LoginSecondStep extends Component {
     };
 
     handleFileChange = () => {
-        const { form } = this.state;
+        const { form, secretFile } = this.state;
         const file = this.secretFileInput.current.files[0];
-        form.secretFile = file.name;
-        this.setState({ form });
+        if (file) {
+            form.secretFileLabel = file.name;
+            this.setState({
+                form,
+                secretFile: file
+            });
+        } else {
+            if (secretFile === null) {
+                form.secretFileLabel = 'Choose your secret file';
+                this.setState({
+                    form,
+                    secretFile: null
+                });
+            }
+        }
     };
 
     handleSubmit = (event) => {
         event.preventDefault();
-        const { form } = this.state;
+        const { form, userData, secretFile } = this.state;
         const { errors, isValid } = validateLoginSecondStepInput(form);
         if (isValid) {
             // call submit function
             this.setState({ errors });
             this.props.handlePostSubmit({
                 success: true,
-                user: form
+                user: {
+                    password: userData.password,
+                    device: form.device,
+                    pin: form.pin,
+                    secretFile
+                }
             });
         } else {
             this.setState({ errors });
@@ -110,15 +129,15 @@ export default class LoginSecondStep extends Component {
                     <div className="custom-file">
                         <input
                             type="file"
-                            className={errors.secretFile ? 'custom-file-input is-invalid' : 'custom-file-input'}
-                            id="secretFile"
+                            className={errors.secretFileLabel ? 'custom-file-input is-invalid' : 'custom-file-input'}
+                            id="secretFileLabel"
                             ref={this.secretFileInput}
                             onChange={this.handleFileChange}
                         />
-                        <label className="custom-file-label" htmlFor="secretFile">
-                            {form.secretFile}
+                        <label className="custom-file-label" htmlFor="secretFileLabel">
+                            {form.secretFileLabel}
                         </label>
-                        <div className="invalid-feedback">{errors.secretFile}</div>
+                        <div className="invalid-feedback">{errors.secretFileLabel}</div>
                         <small className="text-muted form-help">
                             Click to add secret file that you add during registration
                         </small>

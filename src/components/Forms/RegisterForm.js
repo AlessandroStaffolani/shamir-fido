@@ -1,12 +1,29 @@
 import React, { Component } from 'react';
 import config from '../../config';
 import { validateRegisterInput, isValidIp } from '../../validation/register';
-import registerController from '../../controllers/registerController';
+import registerController from '../../controllers/secretController';
 
 export default class RegisterForm extends Component {
     constructor(props) {
         super(props);
-        this.state = registerController.initForm();
+        this.state = {
+            form: {
+                password: '',
+                device: '',
+                pin: '',
+                secretFileLabel: 'Choose your secret file',
+                numShards: config.shardOptions.defaultMinShards.toString()
+            },
+            secretFile: null,
+            pinDisabled: true,
+            errors: {
+                password: false,
+                device: false,
+                pin: false,
+                secretFileLabel: false,
+                numShards: false
+            }
+        }
 
         this.secretFileInput = React.createRef();
 

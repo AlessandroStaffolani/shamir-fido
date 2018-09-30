@@ -19,9 +19,9 @@ const validateLoginSecondStepInput = data => {
             errors.pin = 'If you are using device method pin field is required';
             isValid = false;
         }
-    } else if (validator.equals(data.secretFile, 'Choose your secret file')) {
+    } else if (validator.equals(data.secretFileLabel, 'Choose your secret file')) {
         errors.device = 'One between device and secret file is required';
-        errors.secretFile = 'One between device and secret file is required';
+        errors.secretFileLabel = 'One between device and secret file is required';
         isValid = false;
     }
 

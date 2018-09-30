@@ -1,21 +1,20 @@
 import React, { Component } from 'react';
 import RegisterForm from '../Forms/RegisterForm';
-import registerController from '../../controllers/registerController';
-import config from '../../config';
+import secretController from '../../controllers/secretController';
 import KeyField from '../Forms/KeyField';
-import { share, newShare } from '../../shamir';
-import { internal_to_textField, password_to_internal } from '../../shamir/representation';
 
 export default class Register extends Component {
     constructor(props) {
         super(props);
-        this.state = registerController.init();
+        this.state = {
+            masterSecret: null
+        }
 
         this.handlePostSubmit = this.handlePostSubmit.bind(this);
     }
 
     handlePostSubmit = formData => {
-        registerController
+        secretController
             .generateMasterSecret(formData)
             .then(result => {
                 // localStorage.setItem(config.masterSecretStorageKey, masterSecret);
@@ -24,7 +23,7 @@ export default class Register extends Component {
                     shares: result.shares
                 });
                 this.props.setShares(result.shares);
-                this.props.setOriginalSecret(result.masterSecret);
+                this.props.setMasterSecret(result.masterSecret);
             })
             .catch(err => {
                 console.log(err);

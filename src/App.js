@@ -11,17 +11,25 @@ export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            userLogged: false,
-            currentPage: routes.home,
-            content: <Login handlePostLogin={this.handlePostLogin} />,
+            userLogged: {
+                device: '1.1.1.1',
+                password: 'pass1234',
+                pin: '111111'
+            },
+            currentPage: routes.protected,
+            content: <Login handlePostLogin={this.handlePostLogin} setShares={this.setShares} setMasterSecret={this.setMasterSecret} />,
             shares: [],
-            originalSecret: null
+            masterSecret: 'CXxWGcN0FcyWdnmnkEjIaaRibVcbErXIpJ/rxskynWw='
         };
 
         this.handleLinkNavigation = this.handleLinkNavigation.bind(this);
         this.handlePostLogin = this.handlePostLogin.bind(this);
         this.setShares = this.setShares.bind(this);
-        this.setOriginalSecret = this.setOriginalSecret.bind(this);
+        this.setMasterSecret = this.setMasterSecret.bind(this);
+    }
+
+    componentDidMount() {
+        this.setAppContent();
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -59,13 +67,13 @@ export default class App extends Component {
         this.setState({ shares });
     };
 
-    setOriginalSecret = secret => {
-        this.setState({ originalSecret: secret });
+    setMasterSecret = secret => {
+        this.setState({ masterSecret: secret });
     };
 
     setAppContent = () => {
-        const { currentPage, userLogged } = this.state;
-        const loginContent = <Login handlePostLogin={this.handlePostLogin} />;
+        const { currentPage, userLogged, shares, masterSecret } = this.state;
+        const loginContent = <Login handlePostLogin={this.handlePostLogin} setShares={this.setShares} setMasterSecret={this.setMasterSecret} />;
         let content = '';
         let updatedUserLogged = undefined;
         switch (currentPage.code) {
@@ -76,13 +84,13 @@ export default class App extends Component {
                 content = loginContent;
                 break;
             case routes.register.code:
-                content = <Register setShares={this.setShares} setOriginalSecret={this.setOriginalSecret} />;
+                content = <Register setShares={this.setShares} setMasterSecret={this.setMasterSecret} />;
                 break;
             case routes.shamir.code:
-                content = <Shamir shares={this.state.shares} originalSecret={this.state.originalSecret} />;
+                content = <Shamir shares={shares} masterSecret={masterSecret} />;
                 break;
             case routes.protected.code:
-                content = userLogged ? <Protected userLogged={userLogged} /> : loginContent;
+                content = userLogged ? <Protected userLogged={userLogged} masterSecret={masterSecret} /> : loginContent;
                 break;
             case routes.logout.code:
                 updatedUserLogged = false;
