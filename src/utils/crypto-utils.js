@@ -3,11 +3,42 @@ const crypto = app.remote.require('crypto');
 const fs = app.remote.require('fs');
 
 const IV_LENGTH = 16; // For AES, this is always 16
+const IV_LENGTH_BASE64 = 24; // Length of IV as base 64 string used in decryption
+const AUTH_TAG_LENGHT = 16;
+const IV_AND_AUTH_TAG_BASE64_LENGTH = 44;
 
-export const hashString = (string, algorithm = 'sha256') => {
+export const hashString = (message, algorithm = 'sha256', options) => {
     const hash = crypto.createHash(algorithm);
-    hash.update(string);
-    return hash.digest('hex');
+
+    if (Buffer.isBuffer(message)) {
+        hash.update(message);
+    } else if (Array.isArray(message)) {
+        // Array of byte values
+        hash.update(new Buffer(message));
+    } else {
+        // Otherwise, treat as a binary string
+        hash.update(new Buffer(message, 'binary'));
+    }
+
+    const bufferDigest = hash.digest();
+
+    if (options && options.asBytes) {
+        // Array of bytes as decimal integers
+        let arrayOfBytes = [];
+        for (let i = 0; i < bufferDigest.length; i++) {
+            arrayOfBytes.push(bufferDigest[i]);
+        }
+        return arrayOfBytes;
+    } else if (options && options.asString) {
+        // Binary string
+        return bufferDigest.toString('binary');
+    } else if (options && options.asBuffer) {
+        // Buffer
+        return bufferDigest;
+    } else {
+        // String of hex characters
+        return bufferDigest.toString('hex');
+    }
 };
 
 export const hashFile = (filePath, algorithm = 'sha256') => {
@@ -24,68 +55,77 @@ export const hashFile = (filePath, algorithm = 'sha256') => {
     });
 };
 
-export const cipherFile = (filePath, secret, algorithm = 'aes256') => {
+export const cipherFile = (filePath, secret, destPath, algorithm = 'id-aes256-GCM') => {
     return new Promise((resolve, reject) => {
-        const iv = crypto.randomBytes(IV_LENGTH);
-        // BUG: error on signature, I can't understand what is wrong
-        //const cipher = crypto.createCipheriv(algorithm, Buffer.from(secret), iv);
-        // I can't use initializing vector because of that bug
-        const cipher = crypto.createCipher(algorithm, Buffer.from(secret));
+        try {
+            const iv = crypto.randomBytes(IV_LENGTH);
+            const cipher = crypto.createCipheriv(algorithm, secret, iv);
 
-        const input = fs.createReadStream(filePath, { encoding: 'utf8' });
-        const output = fs.createWriteStream(filePath);
+            const input = fs.createReadStream(filePath, { encoding: 'utf8' });
+            const output = fs.createWriteStream(destPath);
 
-        let encrypted = '';
-        /* input.on('data', data => {
-            console.log(data);
-            encrypted = cipher.update(data.toString(), 'utf8', 'base64');
-        }); */
-        input.on('end', () => {
-           /*  encrypted += cipher.final('base64');
-            output.write(encrypted);
-            resolve(encrypted); */
-            cipher.end();
-        });
-        cipher.on('data', data => {
-            console.log(data.toString());
-            if (data) encrypted += data.toString('base64');
-            output.write(data.toString('base64'));
-        });
-        cipher.on('end', () => {
-            output.end();
-            resolve(encrypted);
-        });
+            let encryptedData;
+            input.on('end', () => {
+                cipher.end();
+            });
+            cipher.on('data', data => {
+                if (data) {
+                    if (encryptedData instanceof Buffer) {
+                        encryptedData = Buffer.concat([encryptedData, Buffer.from(data)]);
+                    } else {
+                        encryptedData = Buffer.from(data);
+                    }
+                }
+            });
+            cipher.on('end', () => {
+                const authTag = cipher.getAuthTag();
+                const encrypted = Buffer.concat([Buffer.from(iv), Buffer.from(authTag), encryptedData]).toString('base64');
+                output.write(encrypted);
+                output.end();
+                resolve(encrypted);
+            });
 
-        input.pipe(cipher);
+            input.pipe(cipher);
+        } catch (e) {
+            reject(e);
+        }
     });
 };
 
-export const decipherFile = (filePath, secret, algorithm = 'aes256') => {
+export const decipherFile = (filePath, secret, algorithm = 'id-aes256-GCM') => {
     return new Promise((resolve, reject) => {
-        const decipher = crypto.createDecipher(algorithm, Buffer.from(secret));
-
-        const input = fs.createReadStream(filePath);
-
-        let decrypted = '';
-        input.on('data', data => {
-            decrypted += decipher.update(data.toString(), 'base64', 'utf8');
-            console.log(decrypted);
-            // BUG: the event decipher end is never fired to make it works need to do this bad thing
-            resolve(decrypted);
-        });
-        input.on('end', () => {
-            decrypted += decipher.final('utf8');
-            console.log(decrypted);
-            resolve(decrypted);
-        });
-        /* decipher.on('data', data => {
-            if (data) decrypted += data.toString('utf8');
-            // BUG: the event decipher end is never fired to make it works need to do this bad thing
-            console.log(decrypted);
-        });
-        decipher.on('end', () => {
-            decrypted += decipher.final('utf8');
-            resolve(decrypted);
-        }) */
+        try {
+            
+            fs.readFile(filePath, { encoding: 'utf8'}, (err, data) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(decryptString(data, secret, algorithm));
+                }
+            });
+            
+        } catch (e) {
+            reject(e);
+        }
     });
+};
+
+const decryptString = (encryptedData, secret, algorithm = 'id-aes256-GCM') => {
+    try {
+        let rawData = Buffer.from(encryptedData, 'base64');
+
+        const iv = rawData.slice(0, IV_LENGTH);
+        const authTag = rawData.slice(IV_LENGTH, IV_LENGTH + AUTH_TAG_LENGHT);
+        const data = rawData.slice(IV_LENGTH + AUTH_TAG_LENGHT);
+
+        const decipher = crypto.createDecipheriv(algorithm, Buffer.from(secret), iv);
+        decipher.setAuthTag(authTag);
+
+        let plainText = decipher.update(data, 'binary', 'utf8');
+        plainText += decipher.final('utf8');
+        console.log(plainText);
+        return plainText;
+    } catch (e) {
+        throw new Error(e);
+    }
 };
