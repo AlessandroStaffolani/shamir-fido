@@ -3,9 +3,7 @@ const crypto = app.remote.require('crypto');
 const fs = app.remote.require('fs');
 
 const IV_LENGTH = 16; // For AES, this is always 16
-const IV_LENGTH_BASE64 = 24; // Length of IV as base 64 string used in decryption
 const AUTH_TAG_LENGHT = 16;
-const IV_AND_AUTH_TAG_BASE64_LENGTH = 44;
 
 export const hashString = (message, algorithm = 'sha256', options) => {
     const hash = crypto.createHash(algorithm);
@@ -129,3 +127,13 @@ const decryptString = (encryptedData, secret, algorithm = 'id-aes256-GCM') => {
         throw new Error(e);
     }
 };
+
+export const generateRandomBytes = (size, format = undefined) => {
+    const random = crypto.randomBytes(size);
+    if (format) {
+        return random.toString(format);
+    } else {
+        // Return as buffer of binary
+        return random;
+    }
+}

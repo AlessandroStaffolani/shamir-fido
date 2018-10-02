@@ -5,21 +5,14 @@ import Login from './components/pages/Login';
 import Register from './components/pages/Register';
 import Protected from './components/pages/Protected';
 import Footer from './components/Footer';
-import Shamir from './components/pages/Shamir';
 
 export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            userLogged: {
-                device: '1.1.1.1',
-                password: 'pass1234',
-                pin: '111111'
-            },
-            currentPage: routes.protected,
+            userLogged: false,
+            currentPage: routes.home,
             content: <Login handlePostLogin={this.handlePostLogin} setShares={this.setShares} setMasterSecret={this.setMasterSecret} />,
-            shares: [],
-            masterSecret: 'CXxWGcN0FcyWdnmnkEjIaaRibVcbErXIpJ/rxskynWw='
         };
 
         this.handleLinkNavigation = this.handleLinkNavigation.bind(this);
@@ -85,9 +78,6 @@ export default class App extends Component {
                 break;
             case routes.register.code:
                 content = <Register setShares={this.setShares} setMasterSecret={this.setMasterSecret} />;
-                break;
-            case routes.shamir.code:
-                content = <Shamir shares={shares} masterSecret={masterSecret} />;
                 break;
             case routes.protected.code:
                 content = userLogged ? <Protected userLogged={userLogged} masterSecret={masterSecret} /> : loginContent;

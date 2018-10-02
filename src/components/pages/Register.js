@@ -1,16 +1,34 @@
 import React, { Component } from 'react';
-import RegisterForm from '../Forms/RegisterForm';
+import RegisterFirstStep from '../Forms/RegisterFirstStep';
 import secretController from '../../controllers/secretController';
 import KeyField from '../Forms/KeyField';
+import RegisterSecondStep from '../Forms/RegisterSecondStep';
 
 export default class Register extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            masterSecret: null
-        }
+            masterSecret: null,
+            currentStep: 1,
+            finalStep: 3,
+            userData: null
+        };
+    }
 
-        this.handlePostSubmit = this.handlePostSubmit.bind(this);
+    handleFirstStepSubmit = userData => {
+        if (userData) {
+            this.setState({
+                currentStep: 2,
+                userData
+            })
+        }
+    }
+
+    handleSecondStepSubmit = masterSecret => {
+        this.setState({
+            masterSecret,
+            currentStep: 3
+        })
     }
 
     handlePostSubmit = formData => {
@@ -18,7 +36,7 @@ export default class Register extends Component {
             .generateMasterSecret(formData)
             .then(result => {
                 // localStorage.setItem(config.masterSecretStorageKey, masterSecret);
-                this.setState({ 
+                this.setState({
                     masterSecret: result.masterSecret,
                     shares: result.shares
                 });
@@ -31,22 +49,34 @@ export default class Register extends Component {
     };
 
     render() {
+        const { currentStep, finalStep, userData, masterSecret } = this.state;
         return (
             <div className="row">
                 <div className="col-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3">
                     <div className="form-wrapper">
-                        <h3>Register</h3>
+                        <div className="d-flex align-items-center">
+                            <h3 className="d-inline-block w-50">Register</h3>
+                            <span className="step-status w-50 text-right">
+                                Step: {currentStep} / {finalStep}
+                            </span>
+                        </div>
                         <hr />
-                        {this.state.masterSecret ? (
+                        {masterSecret && currentStep === 3 ? (
                             <KeyField
-                                secret={this.state.masterSecret}
+                                secret={masterSecret}
                                 label="Your master secret"
                                 info="Keep this key in a safe place. This key will be used to encrypt your file, without it you can't decrypt them."
                             />
                         ) : (
                             ''
                         )}
-                        <RegisterForm handlePostSubmit={this.handlePostSubmit} />
+                        {currentStep === 1 ? (
+                            <RegisterFirstStep handleSubmit={this.handleFirstStepSubmit} submitLabel={'Next'} />
+                        ) : currentStep === 2 ? (
+                            <RegisterSecondStep handleSubmit={this.handleSecondStepSubmit} userData={userData} submitLabel={'Generate Master Secret'} />
+                        ) : (
+                            ''
+                        )}
                     </div>
                 </div>
             </div>

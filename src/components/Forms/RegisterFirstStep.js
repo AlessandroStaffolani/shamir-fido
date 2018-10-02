@@ -1,23 +1,22 @@
 import React, { Component } from 'react';
-import { validateLoginFirstStepInput } from '../../validation/loginFirstStep';
+import config from '../../config';
+import { validateRegisterInput, isValidIp } from '../../validation/registerFirstStep';
 
-// Login first step: username and password
-export default class LoginFirstStep extends Component {
+export default class RegisterForm extends Component {
     constructor(props) {
         super(props);
         this.state = {
             form: {
                 username: '',
-                password: ''
+                password: '',
+                password2: '',
             },
             errors: {
                 username: false,
-                password: false
+                password: false,
+                password2: false
             }
         };
-
-        this.handleInputChange = this.handleInputChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     handleInputChange = (event, name) => {
@@ -30,13 +29,13 @@ export default class LoginFirstStep extends Component {
     handleSubmit = event => {
         event.preventDefault();
         const { form } = this.state;
-        const { errors, isValid } = validateLoginFirstStepInput(form);
+        const { errors, isValid } = validateRegisterInput(form);
         if (isValid) {
             // call submit function
             this.setState({ errors });
-            this.props.handlePostSubmit({
-                success: true,
-                user: form
+            this.props.handleSubmit({
+                username: form.username,
+                password: form.password,
             });
         } else {
             this.setState({ errors });
@@ -73,7 +72,20 @@ export default class LoginFirstStep extends Component {
                         onChange={event => this.handleInputChange(event, 'password')}
                     />
                     <div className="invalid-feedback">{errors.password}</div>
-                    <small className="text-muted form-help">Add your registration password</small>
+                    <small className="text-muted form-help">Alphanumeric password with min length of 8</small>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="password2">Confirm Password</label>
+                    <input
+                        type="password"
+                        className={errors.password2 ? 'form-control is-invalid' : 'form-control'}
+                        id="password2"
+                        placeholder="Confirm Password"
+                        value={form.password2}
+                        onChange={event => this.handleInputChange(event, 'password2')}
+                    />
+                    <div className="invalid-feedback">{errors.password2}</div>
+                    <small className="text-muted form-help">Write again the password that you have typed</small>
                 </div>
                 <div className="text-right">
                     <button type="submit" className="btn btn-primary">

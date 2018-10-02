@@ -12,13 +12,12 @@ export const random = numb => {
 
 export const combine = shares => {
     const password = secrets.combine(shares);
-    //const password = secrets.combine(shares.map(internal_to_shardUtil).map(e => e.slice(1)));
-    return shardUtil_to_internal(password);
+    return Buffer.from(password);
 };
 
 export const newShare = (id, shares) => {
     const newShare = secrets.newShare(id, shares);
-    return newShare;
+    return Buffer.from(newShare);
 };
 
 export const add_prefix_to_shard = (shard, bitsValue, id) => {

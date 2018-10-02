@@ -77,6 +77,7 @@ export default class LoginSecondStep extends Component {
             this.props.handlePostSubmit({
                 success: true,
                 user: {
+                    username: userData.username,
                     password: userData.password,
                     device: form.device,
                     pin: form.pin,
@@ -98,6 +99,17 @@ export default class LoginSecondStep extends Component {
                 <p>
                     First authentication step complete, now use one of the method listed below to complete your two-factor authentication and access to your protected area.
                 </p>
+                <div className="form-group">
+                    <label htmlFor="username">Username</label>
+                    <input
+                        type="username"
+                        className='form-control'
+                        id="username"
+                        disabled={true}
+                        placeholder="Username"
+                        value={userData.username}
+                    />
+                </div>
                 <div className="form-group">
                     <label htmlFor="device">Device</label>
                     <input
