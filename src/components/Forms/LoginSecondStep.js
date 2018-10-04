@@ -99,6 +99,7 @@ export default class LoginSecondStep extends Component {
                         <small className="text-muted form-help">Click to add secret file that was created during registration</small>
                     </div>
                 </div>
+                <hr />
                 <div className="text-right">
                     <button type="submit" className="btn btn-primary">
                         {saveLabel}

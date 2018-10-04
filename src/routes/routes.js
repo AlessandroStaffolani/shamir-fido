@@ -7,14 +7,6 @@ const routes = {
         visibility: 'link',
         protected: false,
     },
-    /* shamir: {
-        label: 'Shamir Secret Sharing',
-        code: 'shamir',
-        title: 'Shamir Secret Sharing',
-        visibility: 'navbar',
-        back: 'home',
-        protected: false,
-    }, */
     login: {
         label: 'Login',
         code: 'login',
@@ -30,6 +22,14 @@ const routes = {
         visibility: 'navbar',
         back: 'home',
         protected: false,
+    },
+    authorize_device: {
+        label: 'Authorize other device',
+        code: 'authorize_device',
+        title: 'Authorize other device',
+        visibility: 'navbar',
+        back: 'home',
+        protected: true,
     },
     protected: {
         label: 'Protected Area',

@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
-import { validateRegisterInput } from '../../validation/register';
+import { validateRegisterInput } from '../../validation/registerUsingDevice';
 import secretController from '../../controllers/secretController';
 
 const SECOND_FACTOR_FILENAME = 'second-factor-key';
 
-export default class RegisterForm extends Component {
+export default class RegisterUsingDevice extends Component {
     constructor() {
         super();
         this.state = {
             form: {
                 username: '',
                 password: '',
-                password2: '',
+                device: '',
                 folderInputLabel: 'Chose ...',
                 secondFactorFileName: SECOND_FACTOR_FILENAME
             },
@@ -19,7 +19,7 @@ export default class RegisterForm extends Component {
             errors: {
                 username: false,
                 password: false,
-                password2: false,
+                device: false,
                 folderInputLabel: false,
                 secondFactorFileName: false
             }
@@ -65,23 +65,7 @@ export default class RegisterForm extends Component {
         if (isValid) {
             // call submit function
             this.setState({ errors });
-            const fileCompletePath = secondFactorFolder.path + '/' + fileName;
-            let filePromise = secretController
-                .createSecondFactorKeyFile(form.username, fileCompletePath)
-                .then(result => result.shards)
-                .catch(err => console.log(err));
-            filePromise.then(shards => {
-                const masterSecret = secretController.generateMasterSecret(shards);
-
-                this.props.handleSubmit({
-                    userData: {
-                        username: form.username,
-                        password: form.password
-                    },
-                    shards,
-                    masterSecret
-                });
-            });
+            console.log(form);
         } else {
             this.setState({ errors });
         }
@@ -105,6 +89,7 @@ export default class RegisterForm extends Component {
                         onChange={event => this.handleInputChange(event, 'username')}
                     />
                     <div className="invalid-feedback">{errors.username}</div>
+                    <small className="text-muted form-help">Add the same username used on main device</small>
                 </div>
                 <div className="form-group">
                     <label htmlFor="password">Password</label>
@@ -117,20 +102,20 @@ export default class RegisterForm extends Component {
                         onChange={event => this.handleInputChange(event, 'password')}
                     />
                     <div className="invalid-feedback">{errors.password}</div>
-                    <small className="text-muted form-help">Alphanumeric password with min length of 8</small>
+                    <small className="text-muted form-help">Add the same password used on main device</small>
                 </div>
                 <div className="form-group">
-                    <label htmlFor="password2">Confirm Password</label>
+                    <label htmlFor="device">Device</label>
                     <input
-                        type="password"
-                        className={errors.password2 ? 'form-control is-invalid' : 'form-control'}
-                        id="password2"
-                        placeholder="Confirm Password"
-                        value={form.password2}
-                        onChange={event => this.handleInputChange(event, 'password2')}
+                        type="device"
+                        className={errors.device ? 'form-control is-invalid' : 'form-control'}
+                        id="device"
+                        placeholder="Device ip"
+                        value={form.device}
+                        onChange={event => this.handleInputChange(event, 'device')}
                     />
-                    <div className="invalid-feedback">{errors.password2}</div>
-                    <small className="text-muted form-help">Write again the password that you have typed</small>
+                    <div className="invalid-feedback">{errors.device}</div>
+                    <small className="text-muted form-help">Add your main device ip</small>
                 </div>
                 <div className="form-group">
                     <label htmlFor="secondFactorFolder">Chose a folder</label>

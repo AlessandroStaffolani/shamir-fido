@@ -1,6 +1,5 @@
 module.exports = {
-    shardOptions: {
-        maxShards: 3,
-        defaultMinShards: 2
+    socket: {
+        port: 8999
     }
 }

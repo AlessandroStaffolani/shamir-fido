@@ -6,13 +6,17 @@ import Register from './components/pages/Register';
 import Protected from './components/pages/Protected';
 import Footer from './components/Footer';
 import Alert from './components/base/Alert';
+import AuthorizeDevice from './components/pages/AuthorizeDevice';
 
 export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            userLogged: false,
-            currentPage: routes.home,
+            userLogged: {
+                username: 'alessandro',
+                password: 'pass1234'
+            },
+            currentPage: routes.authorize_device,
             content: <Login handlePostLogin={this.handlePostLogin} />,
             message: false
         };
@@ -82,6 +86,9 @@ export default class App extends Component {
                 break;
             case routes.protected.code:
                 content = userLogged ? <Protected userData={userLogged} setMessage={this.setMessage} /> : loginContent;
+                break;
+            case routes.authorize_device.code: 
+                content = userLogged ? <AuthorizeDevice userData={userLogged} /> : loginContent;
                 break;
             case routes.logout.code:
                 content = loginContent;

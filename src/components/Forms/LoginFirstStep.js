@@ -79,6 +79,7 @@ export default class LoginFirstStep extends Component {
                     <div className="invalid-feedback">{errors.password}</div>
                     <small className="text-muted form-help">Add your registration password</small>
                 </div>
+                <hr />
                 <div className="text-right">
                     <button type="submit" className="btn btn-primary">
                         {saveLabel}
