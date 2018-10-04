@@ -6,6 +6,8 @@ const validateRegisterInput = data => {
         username: false,
         password: false,
         password2: false,
+        folderInputLabel: false,
+        secondFactorFileName: false
     };
     let isValid = true;
 
@@ -14,7 +16,7 @@ const validateRegisterInput = data => {
     data.username = !isEmpty(data.username) ? data.username : '';
     data.password = !isEmpty(data.password) ? data.password : '';
     data.password2 = !isEmpty(data.password2) ? data.password2 : '';
-
+    data.secondFactorFileName = !isEmpty(data.secondFactorFileName) ? data.secondFactorFileName : '';
 
     if (!isEmpty(data.password) && !isEmpty(data.password2)) {
         if (data.password !== data.password2) {
@@ -44,17 +46,22 @@ const validateRegisterInput = data => {
         isValid = false;
     }
 
+    if (validator.isEmpty(data.secondFactorFileName)) {
+        errors.secondFactorFileName = 'Second factor file name field is required';
+        isValid = false;
+    }
+
+    if (data.secondFactorFolder === null) {
+        errors.folderInputLabel = 'Second factor file folder is required';
+        isValid = false;
+    }
+
     return {
         errors,
         isValid
     };
 };
 
-const isValidIp = value => {
-    return validator.isIP(value);
-};
-
 module.exports = {
-    validateRegisterInput,
-    isValidIp
+    validateRegisterInput
 };

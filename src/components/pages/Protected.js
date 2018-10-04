@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import protectedAreaController from '../../controllers/protectedAreaController';
+import secretController from '../../controllers/secretController';
 
 export default class Protected extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            masterSecret: props.masterSecret,
+            userData: props.userData,
+            masterSecret: null,
             fileLabel: 'Choose your secret file',
             fileError: false,
             file: null,
@@ -13,6 +15,24 @@ export default class Protected extends Component {
         };
 
         this.fileInput = React.createRef();
+    }
+
+    componentDidMount() {
+        const { username } = this.props.userData;
+        const masterSecret = secretController.masterSecretFromLocalStorage(username);
+        if (masterSecret) {
+            this.setState({ masterSecret });
+        } else {
+            this.props.setMessage({
+                type: 'danger',
+                dismissable: true,
+                content: (
+                    <div>
+                        <strong>Error on retrive master secret!</strong> Probably your credentials are wrong
+                    </div>
+                )
+            })
+        } 
     }
 
     handleFileChange = () => {
@@ -39,7 +59,7 @@ export default class Protected extends Component {
         if (file === null) {
             this.setState({
                 fileError: 'You need to load file encrypt/decrypt it'
-            })
+            });
         } else {
             let actionPromise;
             if (type === 'encrypt') {
@@ -52,18 +72,30 @@ export default class Protected extends Component {
             if (actionPromise) {
                 actionPromise.then(result => {
                     //console.log(result);
-                    this.setState({fileContent: result})
+                    this.setState({ fileContent: result });
                 })
+                .catch(err => {
+                    console.log(err);
+                    this.props.setMessage({
+                        type: 'danger',
+                        dismissable: true,
+                        content: (
+                            <div>
+                                <strong>Error!</strong> Probably your credentials are wrong
+                            </div>
+                        )
+                    })
+                });
             }
         }
-    }
+    };
 
     render() {
         const { fileLabel, fileError, fileContent } = this.state;
 
         return (
             <div className="row">
-                <div className="col-12 col-md-10 offset-md-1">
+                <div className="col-12">
                     <div className="form-wrapper">
                         <h3>Protected Area</h3>
                         <hr />
@@ -87,14 +119,18 @@ export default class Protected extends Component {
                         <hr />
                         <div className="row align-item-start text-center">
                             <div className="col-12 col-md-6">
-                                <button className="btn btn-success d-block m-auto" onClick={() => this.handleButtonClick('encrypt')} >Encrypt file</button>
+                                <button className="btn btn-success d-block m-auto" onClick={() => this.handleButtonClick('encrypt')}>
+                                    Encrypt file
+                                </button>
                                 <small className="text-muted form-help">
                                     File encryption will encrypt the content of your loaded file and will replace the old file with encrypted one. The file
                                     content will be also displayed on the box below
                                 </small>
                             </div>
                             <div className="col-12 col-md-6">
-                                <button className="btn btn-danger d-block m-auto" onClick={() => this.handleButtonClick('decrypt')} >Decrypt</button>
+                                <button className="btn btn-danger d-block m-auto" onClick={() => this.handleButtonClick('decrypt')}>
+                                    Decrypt
+                                </button>
                                 <small className="text-muted form-help">
                                     File decryption will decrypt the content of your loaded file and will display the decrypted content on the box below.
                                     Without change the encrypted file

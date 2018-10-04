@@ -93,15 +93,18 @@ export const cipherFile = (filePath, secret, destPath, algorithm = 'id-aes256-GC
 export const decipherFile = (filePath, secret, algorithm = 'id-aes256-GCM') => {
     return new Promise((resolve, reject) => {
         try {
-            
-            fs.readFile(filePath, { encoding: 'utf8'}, (err, data) => {
+            fs.readFile(filePath, { encoding: 'utf8' }, (err, data) => {
                 if (err) {
                     reject(err);
                 } else {
-                    resolve(decryptString(data, secret, algorithm));
+                    let decrypted = decryptString(data, secret, algorithm);
+                    if (decrypted instanceof Error) {
+                        reject(decrypted);
+                    } else {
+                        resolve(decrypted);
+                    }
                 }
             });
-            
         } catch (e) {
             reject(e);
         }
@@ -124,7 +127,7 @@ const decryptString = (encryptedData, secret, algorithm = 'id-aes256-GCM') => {
         console.log(plainText);
         return plainText;
     } catch (e) {
-        throw new Error(e);
+        return e;
     }
 };
 
@@ -136,4 +139,4 @@ export const generateRandomBytes = (size, format = undefined) => {
         // Return as buffer of binary
         return random;
     }
-}
+};

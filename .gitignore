@@ -60,5 +60,8 @@ typings/
 # next.js build output
 .next
 
+# React build
+build/
+
 # files for testing encryption
 test-file/

@@ -22,10 +22,11 @@ const createSecondFactorKeyFile = (password, destination) => {
     return new Promise((resolve, reject) => {
         let random = generateRandomBytes(256);
         const shards = createShardsFromString([password, random]);
+        let randomShardBuffer = Buffer.from(shards[1]);
         // Master secret not necessary to be created
-        const nextShard = newShare(shards.length + 1, shards);
+        //const nextShard = newShare(shards.length + 1, shards);
 
-        fs.writeFile(destination, nextShard.toString('base64'), err => {
+        fs.writeFile(destination, randomShardBuffer.toString('base64'), err => {
             if (err) {
                 reject(err);
             } else {
@@ -50,7 +51,10 @@ const masterSecretFromPasswordAndFile = (password, filePath) => {
                 shards.push(bufferShard.toString());
 
                 const masterSecret = generateMasterSecret(shards);
-                resolve(masterSecret);
+                resolve({
+                    masterSecret,
+                    shards
+                });
             }
         });
     });
@@ -58,9 +62,12 @@ const masterSecretFromPasswordAndFile = (password, filePath) => {
 
 const masterSecretFromLocalStorage = username => {
     let shardsString = localStorage.getItem(username);
-    const shards = shardsString.split(',');
-
-    return generateMasterSecret(shards);
+    if (shardsString !== null) {
+        const shards = shardsString.split(',');
+        return generateMasterSecret(shards);
+    } else {
+        null;
+    }
 };
 
 export default {

@@ -5,6 +5,7 @@ import Login from './components/pages/Login';
 import Register from './components/pages/Register';
 import Protected from './components/pages/Protected';
 import Footer from './components/Footer';
+import Alert from './components/base/Alert';
 
 export default class App extends Component {
     constructor(props) {
@@ -12,13 +13,12 @@ export default class App extends Component {
         this.state = {
             userLogged: false,
             currentPage: routes.home,
-            content: <Login handlePostLogin={this.handlePostLogin} setShares={this.setShares} setMasterSecret={this.setMasterSecret} />,
+            content: <Login handlePostLogin={this.handlePostLogin} />,
+            message: false
         };
 
         this.handleLinkNavigation = this.handleLinkNavigation.bind(this);
         this.handlePostLogin = this.handlePostLogin.bind(this);
-        this.setShares = this.setShares.bind(this);
-        this.setMasterSecret = this.setMasterSecret.bind(this);
     }
 
     componentDidMount() {
@@ -49,54 +49,60 @@ export default class App extends Component {
         }
     };
 
-    handlePostLogin = userData => {
+    handlePostLogin = data => {
+        localStorage.setItem(data.userData.username, data.shards);
         this.setState({
-            userLogged: userData,
-            currentPage: routes.protected
+            userLogged: data.userData,
+            currentPage: routes.protected,
+            message: {
+                type: 'success',
+                dismissable: true,
+                content: 'Welcome back ' + data.userData.username
+            }
         });
     };
 
-    setShares = shares => {
-        this.setState({ shares });
-    };
-
-    setMasterSecret = secret => {
-        this.setState({ masterSecret: secret });
-    };
+    setMessage = message => {
+        this.setState({message})
+    }
 
     setAppContent = () => {
-        const { currentPage, userLogged, shares, masterSecret } = this.state;
-        const loginContent = <Login handlePostLogin={this.handlePostLogin} setShares={this.setShares} setMasterSecret={this.setMasterSecret} />;
+        const { currentPage, userLogged } = this.state;
+        const loginContent = <Login handlePostLogin={this.handlePostLogin} />;
         let content = '';
-        let updatedUserLogged = undefined;
         switch (currentPage.code) {
             case routes.home.code:
-                content = userLogged ? <Protected userLogged={userLogged} /> : loginContent;
+                content = userLogged ? <Protected userData={userLogged} setMessage={this.setMessage} /> : loginContent;
                 break;
             case routes.login.code:
                 content = loginContent;
                 break;
             case routes.register.code:
-                content = <Register setShares={this.setShares} setMasterSecret={this.setMasterSecret} />;
+                content = <Register setShards={this.setShards} setMasterSecret={this.setMasterSecret} />;
                 break;
             case routes.protected.code:
-                content = userLogged ? <Protected userLogged={userLogged} masterSecret={masterSecret} /> : loginContent;
+                content = userLogged ? <Protected userData={userLogged} setMessage={this.setMessage} /> : loginContent;
                 break;
             case routes.logout.code:
-                updatedUserLogged = false;
                 content = loginContent;
+                this.logout();
                 break;
             default:
                 content = loginContent;
         }
-        const user = updatedUserLogged === undefined ? userLogged : updatedUserLogged;
         this.setState({
-            content,
-            userLogged: user
+            content
         });
     };
 
+    logout = () => {
+        const { userLogged } = this.state;
+        localStorage.removeItem(userLogged.username);
+        this.setState({ userLogged: false, message: false });
+    };
+
     render() {
+        const { message, content } = this.state;
         return (
             <div className="body">
                 <Navbar handleLinkNavigation={this.handleLinkNavigation} userLogged={this.state.userLogged} />
@@ -104,7 +110,10 @@ export default class App extends Component {
                     <div className="content">
                         <div className="container mt-5">
                             <div className="row">
-                                <div className="col-12">{this.state.content}</div>
+                                <div className="col-12">
+                                    {message ? <Alert type={message.type} dismissable={message.dismissable} content={message.content} /> : ''}
+                                    {content}
+                                </div>
                             </div>
                         </div>
                     </div>
