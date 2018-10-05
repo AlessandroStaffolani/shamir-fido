@@ -111,7 +111,25 @@ export const decipherFile = (filePath, secret, algorithm = 'id-aes256-GCM') => {
     });
 };
 
-const decryptString = (encryptedData, secret, algorithm = 'id-aes256-GCM') => {
+export const encryptString = (plainText, secret, algorithm = 'id-aes256-GCM') => {
+    try {
+        let iv = crypto.randomBytes(IV_LENGTH);
+        let cipher = crypto.createCipheriv(algorithm, secret, iv);
+        let update = cipher.update(plainText, 'utf8');
+        let final = cipher.final();
+        update = Buffer.from(update);
+        final = Buffer.from(final);
+        let encryptedData = Buffer.concat([update, final]);
+        let authTag = cipher.getAuthTag();
+
+        return Buffer.concat([Buffer.from(iv), Buffer.from(authTag), encryptedData]).toString('base64');
+
+    } catch (e) {
+        return e;
+    }
+};
+
+export const decryptString = (encryptedData, secret, algorithm = 'id-aes256-GCM') => {
     try {
         let rawData = Buffer.from(encryptedData, 'base64');
 
@@ -133,10 +151,12 @@ const decryptString = (encryptedData, secret, algorithm = 'id-aes256-GCM') => {
 
 export const generateRandomBytes = (size, format = undefined) => {
     const random = crypto.randomBytes(size);
-    if (format) {
+    if (format === 'asNumber') {
+        return parseInt(random.toString('hex'), 16);
+    } else if (format) {
+        // Return as buffer of binary
         return random.toString(format);
     } else {
-        // Return as buffer of binary
         return random;
     }
 };

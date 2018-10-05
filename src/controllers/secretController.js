@@ -60,13 +60,30 @@ const masterSecretFromPasswordAndFile = (password, filePath) => {
     });
 };
 
-const masterSecretFromLocalStorage = username => {
+const getShardsFromLocalStorage = username => {
     let shardsString = localStorage.getItem(username);
     if (shardsString !== null) {
         const shards = shardsString.split(',');
+        return shards;
+    } else {
+        null;
+    }
+};
+
+const masterSecretFromLocalStorage = username => {
+    const shards = getShardsFromLocalStorage(username);
+    if (shards !== null) {
         return generateMasterSecret(shards);
     } else {
         null;
+    }
+};
+
+const generateNextShard = username => {
+    const shards = getShardsFromLocalStorage(username);
+    if (shards !== null) {
+        const nextShard = newShare(3, shards);
+        return nextShard.toString('base64');
     }
 };
 
@@ -74,5 +91,6 @@ export default {
     generateMasterSecret,
     createSecondFactorKeyFile,
     masterSecretFromPasswordAndFile,
-    masterSecretFromLocalStorage
+    masterSecretFromLocalStorage,
+    generateNextShard,
 };

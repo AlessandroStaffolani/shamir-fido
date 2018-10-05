@@ -1,8 +1,13 @@
 import React, { Component } from 'react';
 import { validateRegisterInput } from '../../validation/registerUsingDevice';
+import authorizeDeviceController from '../../controllers/authorizeDeviceController';
 import secretController from '../../controllers/secretController';
+import SocketClient from '../../socket/SocketClient';
+import config from '../../config';
+import RegisterUsingDeviceSecond from './RegisterUsingDeviceSecond';
 
 const SECOND_FACTOR_FILENAME = 'second-factor-key';
+const SOCKET_PORT = config.socket.port;
 
 export default class RegisterUsingDevice extends Component {
     constructor() {
@@ -22,10 +27,19 @@ export default class RegisterUsingDevice extends Component {
                 device: false,
                 folderInputLabel: false,
                 secondFactorFileName: false
-            }
+            },
+            secondStep: false
         };
 
         this.folderInput = React.createRef();
+        this.socketClient = null;
+        this.encryptionPin = null;
+    }
+
+    componentWillUnmount() {
+        if (this.socketClient) {
+            this.socketClient.close();
+        }
     }
 
     handleInputChange = (event, name) => {
@@ -64,20 +78,48 @@ export default class RegisterUsingDevice extends Component {
 
         if (isValid) {
             // call submit function
-            this.setState({ errors });
-            console.log(form);
+            this.setState({
+                errors,
+                secondStep: true
+            });
+            this.connectToMainDevice({ ...form, secondFactorFolder });
         } else {
             this.setState({ errors });
         }
     };
 
+    connectToMainDevice = formData => {
+        this.socketClient = new SocketClient(formData.device, SOCKET_PORT, false);
+        this.socketClient.setOnDataCallback(this.onDataCallback);
+        this.socketClient.init();
+    };
+
+    onDataCallback = payload => {
+        if (this.encryptionPin) {
+            let shardBase64 = authorizeDeviceController.decryptMessage(payload, this.encryptionPin);
+            const shard = Buffer.from(shardBase64, 'base64').toString();
+            console.log(shard);
+        }
+    }
+
+    setEncryptionPin = pin => {
+        this.encryptionPin = pin;
+    }
+
     render() {
-        const { form, errors } = this.state;
+        const { form, errors, secondStep } = this.state;
         const { submitLabel, setRegisterMode } = this.props;
         const saveLabel = submitLabel || 'Save';
 
+        if (secondStep) {
+            return <RegisterUsingDeviceSecond userData={form} setEncryptionPin={this.setEncryptionPin} />
+        }
+
         return (
             <form onSubmit={this.handleSubmit}>
+                <p className="text-muted">
+                    To perform this operation you need to be logged in the main device.
+                </p>
                 <div className="form-group">
                     <label htmlFor="username">Username</label>
                     <input
@@ -151,7 +193,7 @@ export default class RegisterUsingDevice extends Component {
                 </div>
                 <hr />
                 <div className="text-right">
-                    <a href="#" className="btn btn-outline-secondary mr-3" onClick={(e) => setRegisterMode(e, null)}>
+                    <a href="#" className="btn btn-outline-secondary mr-3" onClick={e => setRegisterMode(e, null)}>
                         Back
                     </a>
                     <button type="submit" className="btn btn-primary">

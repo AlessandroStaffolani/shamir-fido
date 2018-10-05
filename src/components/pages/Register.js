@@ -9,8 +9,6 @@ export default class Register extends Component {
         super(props);
         this.state = {
             masterSecret: null,
-            currentStep: 1,
-            finalStep: 3,
             userData: false,
             registerMode: null // possible values: main | second
         };

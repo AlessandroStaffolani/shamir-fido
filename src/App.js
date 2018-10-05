@@ -12,11 +12,8 @@ export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            userLogged: {
-                username: 'alessandro',
-                password: 'pass1234'
-            },
-            currentPage: routes.authorize_device,
+            userLogged: false,
+            currentPage: routes.home,
             content: <Login handlePostLogin={this.handlePostLogin} />,
             message: false
         };

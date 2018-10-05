@@ -1,5 +1,6 @@
 module.exports = {
     socket: {
-        port: 8999
+        port: 8999,
+        eventName: 'message'
     }
 }

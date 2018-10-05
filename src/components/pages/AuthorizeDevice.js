@@ -1,17 +1,53 @@
 import React, { Component } from 'react';
+import SocketServer from '../../socket/SocketServer';
+import authorizeDeviceController from '../../controllers/authorizeDeviceController';
+import secretController from '../../controllers/secretController';
 import Alert from '../base/Alert';
+import config from '../../config';
+import KeyField from '../Forms/KeyField';
+
+const EVENT_NAME = config.socket.eventName;
 
 export default class AuthorizeDevice extends Component {
     constructor() {
         super();
         this.state = {
+            pin: '',
             connectedDevice: '',
             message: false
         };
+
+        this.socketServer = null;
     }
 
+    componentDidMount() {
+        this.socketServer = new SocketServer(false);
+        this.socketServer.setOnConnectionCallback(this.onConnectionCallback);
+        this.socketServer.init();
+    }
+
+    componentWillUnmount() {
+        this.socketServer.close();
+    }
+
+    onConnectionCallback = client => {
+        console.log('Connection established with client');
+        if (this.socketServer.getConnectedClient() === null) {
+            this.socketServer.setConnectedClient(client);
+
+            const pin = authorizeDeviceController.generatePin();
+            this.setState({
+                connectedDevice: client.handshake.address,
+                pin: pin
+            });
+        } else {
+            client.emit(EVENT_NAME, 'A client is already connected you will be ejected');
+            client.disconnect();
+        }
+    };
+
     handleAuthorizeDevice = () => {
-        const { connectedDevice } = this.state;
+        const { connectedDevice, pin } = this.state;
 
         if (connectedDevice === '') {
             this.setState({
@@ -24,11 +60,16 @@ export default class AuthorizeDevice extends Component {
                     )
                 }
             });
+        } else {
+            const newShard = secretController.generateNextShard(this.props.userData.username);
+            const newShardEncrypted = authorizeDeviceController.encryptMessage(newShard, pin);
+
+            this.socketServer.emit(newShardEncrypted);
         }
     };
 
     render() {
-        const { connectedDevice, message } = this.state;
+        const { connectedDevice, message, pin } = this.state;
 
         return (
             <div className="row">
@@ -40,7 +81,7 @@ export default class AuthorizeDevice extends Component {
                             Use this section to authorize a new device, we will send to the other connected device the code that will be saved in a file on your
                             new device.
                         </p>
-                        <div className="row align-items-end">
+                        <div className="row align-items-start">
                             <div className="col-12 col-md-6">
                                 <div className="form-group">
                                     <label htmlFor="connectedDevice">Device connected ip</label>
@@ -48,7 +89,12 @@ export default class AuthorizeDevice extends Component {
                                 </div>
                             </div>
                             <div className="col-12 col-md-6">
-                                <button className="btn btn-primary mb-3" onClick={this.handleAuthorizeDevice}>Send new authorization code</button>
+                                <KeyField secret={pin} label="Encryption PIN" />
+                            </div>
+                            <div className="col-12 col-md-6 offset-md-3">
+                                <button className="btn btn-primary mb-3 btn-block" onClick={this.handleAuthorizeDevice}>
+                                    Send new authorization code
+                                </button>
                             </div>
                         </div>
                         {message ? (
