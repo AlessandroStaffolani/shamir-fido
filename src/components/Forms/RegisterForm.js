@@ -67,8 +67,8 @@ export default class RegisterForm extends Component {
             this.setState({ errors });
             const fileCompletePath = secondFactorFolder.path + '/' + fileName;
             let filePromise = secretController
-                .createSecondFactorKeyFile(form.username, fileCompletePath)
-                .then(result => result.shards)
+                .createSecondFactorKeyFile(form.password, fileCompletePath)
+                .then(shards => shards)
                 .catch(err => console.log(err));
             filePromise.then(shards => {
                 const masterSecret = secretController.generateMasterSecret(shards);

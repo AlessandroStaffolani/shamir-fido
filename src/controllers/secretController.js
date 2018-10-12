@@ -92,10 +92,10 @@ const masterSecretFromLocalStorage = username => {
     }
 };
 
-const generateNextShard = username => {
+const generateNextShard = (id, username) => {
     const shards = getShardsFromLocalStorage(username);
     if (shards !== null) {
-        const nextShard = newShare(3, shards);
+        const nextShard = newShare(id, shards);
         return nextShard.toString('base64');
     }
 };

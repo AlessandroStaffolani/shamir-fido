@@ -14,15 +14,22 @@ export default class AuthorizeDevice extends Component {
         this.state = {
             pin: '',
             connectedDevice: '',
-            message: false
+            message: {
+                type: 'warning',
+                content: (
+                    <div>
+                        Other device not connected
+                    </div>
+                )
+            }
         };
 
         this.socketServer = null;
     }
 
     componentDidMount() {
-        this.socketServer = new SocketServer(false);
-        this.socketServer.setOnConnectionCallback(this.onConnectionCallback);
+        this.socketServer = new SocketServer({ autoInit: false, secure: true });
+        this.socketServer.setOnConnectionCallback(this._onConnectionCallback);
         this.socketServer.init();
     }
 
@@ -30,51 +37,48 @@ export default class AuthorizeDevice extends Component {
         this.socketServer.close();
     }
 
-    onConnectionCallback = client => {
+    _onConnectionCallback = client => {
         console.log('Connection established with client');
         if (this.socketServer.getConnectedClient() === null) {
             this.socketServer.setConnectedClient(client);
 
             const pin = authorizeDeviceController.generatePin();
+            this.socketServer.setSecret(pin);
+
+            client.on(EVENT_NAME, this._onClientMessageCallback);
+
             this.setState({
                 connectedDevice: client.handshake.address,
                 pin: pin,
                 message: {
                     type: 'info',
-                    content: (
-                        <div>
-                            Other device connected
-                        </div>
-                    )
+                    content: <div>Other device connected</div>
                 }
             });
         } else {
-            client.emit(EVENT_NAME, 'A client is already connected you will be ejected');
+            this.socketServer.emitTo(client, { msg: 'A client is already connected you will be ejected' });
             client.disconnect();
+        }
+    };
+
+    _onClientMessageCallback = message => {
+        const decryptedObject = this.socketServer.decryptMessage(message, true);
+        // Check if object received contain "pinReceived: true"
+        if (decryptedObject.pinReceived) {
+            // Send shard
+            this.handleAuthorizeDevice();
         }
     };
 
     handleAuthorizeDevice = () => {
         const { connectedDevice, pin } = this.state;
 
-        if (connectedDevice === '') {
-            this.setState({
-                message: {
-                    type: 'warning',
-                    content: (
-                        <div>
-                            <strong>Attention!</strong> Other device not connected
-                        </div>
-                    )
-                }
-            });
-        } else {
-            const newShard = secretController.generateNextShard(this.props.userData.username);
+        if (connectedDevice !== '') {
+            const newShard = secretController.generateNextShard(3, this.props.userData.username);
             let object = {
                 shard: newShard
-            }
-            const objectEncrypted = authorizeDeviceController.encryptMessage(object, pin, true);
-            this.socketServer.emit(objectEncrypted);
+            };
+            this.socketServer.emit(object, true);
             this.setState({
                 message: {
                     type: 'success',
@@ -84,7 +88,7 @@ export default class AuthorizeDevice extends Component {
                         </div>
                     )
                 }
-            })
+            });
         }
     };
 
@@ -98,8 +102,8 @@ export default class AuthorizeDevice extends Component {
                         <h3>Authorize other device</h3>
                         <hr />
                         <p className="text-muted">
-                            Use this section to authorize a new device, we will send you the code for the other connected device, which will be saved in a file on your
-                            new device.
+                            Use this section to authorize a new device, we will send you the code for the other connected device, which will be saved in a file
+                            on your new device.
                         </p>
                         <div className="row align-items-start">
                             <div className="col-12 col-md-6">
@@ -111,11 +115,11 @@ export default class AuthorizeDevice extends Component {
                             <div className="col-12 col-md-6">
                                 <KeyField secret={pin} label="Encryption PIN" />
                             </div>
-                            <div className="col-12 col-md-6 offset-md-3">
+                            {/* <div className="col-12 col-md-6 offset-md-3">
                                 <button className="btn btn-primary mb-3 btn-block" onClick={this.handleAuthorizeDevice}>
                                     Send new authorization code
                                 </button>
-                            </div>
+                            </div> */}
                         </div>
                         {message ? (
                             <div>

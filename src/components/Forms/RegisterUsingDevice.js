@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { validateRegisterInput } from '../../validation/registerUsingDevice';
-import authorizeDeviceController from '../../controllers/authorizeDeviceController';
 import secretController from '../../controllers/secretController';
 import SocketClient from '../../socket/SocketClient';
 import config from '../../config';
@@ -88,22 +87,23 @@ export default class RegisterUsingDevice extends Component {
     };
 
     connectToMainDevice = formData => {
-        this.socketClient = new SocketClient(formData.device, SOCKET_PORT, false);
-        this.socketClient.setOnDataCallback(this.onDataCallback);
+        this.socketClient = new SocketClient(formData.device, SOCKET_PORT, { autoIniti: false, secure: true });
+        this.socketClient.setOnDataCallback(this._onDataCallback);
         this.socketClient.init();
     };
 
-    onDataCallback = payload => {
+    _onDataCallback = payload => {
         const { secondFactorFolder, form } = this.state;
         const fileName = form.secondFactorFileName || SECOND_FACTOR_FILENAME;
         const fileCompletePath = secondFactorFolder.path + '/' + fileName;
 
         if (this.encryptionPin) {
-            let decryptedPayload = authorizeDeviceController.decryptMessage(payload, this.encryptionPin, true);
+            let decryptedPayload = this.socketClient.decryptMessage(payload, true);
             if (decryptedPayload.shard) {
                 // We have recived the shard now we put into a file
                 const shard = Buffer.from(decryptedPayload.shard, 'base64');
-                secretController.saveShardOnFile(shard, fileCompletePath)
+                secretController
+                    .saveShardOnFile(shard, fileCompletePath)
                     .then(() => {
                         let shards = secretController.createShardsFromString([form.password]);
                         shards.push(shard.toString());
@@ -114,16 +114,18 @@ export default class RegisterUsingDevice extends Component {
                                 password: form.password
                             },
                             masterSecret
-                        })
+                        });
                     })
                     .catch(err => console.log(err));
             }
         }
-    }
+    };
 
     setEncryptionPin = pin => {
         this.encryptionPin = pin;
-    }
+        this.socketClient.setSecret(this.encryptionPin);
+        this.socketClient.emit({ pinReceived: true }, true);
+    };
 
     render() {
         const { form, errors, secondStep } = this.state;
@@ -131,14 +133,12 @@ export default class RegisterUsingDevice extends Component {
         const saveLabel = submitLabel || 'Save';
 
         if (secondStep) {
-            return <RegisterUsingDeviceSecond userData={form} setEncryptionPin={this.setEncryptionPin} submitLabel={'Generate Master Secret'} />
+            return <RegisterUsingDeviceSecond userData={form} setEncryptionPin={this.setEncryptionPin} submitLabel={'Generate Master Secret'} />;
         }
 
         return (
             <form onSubmit={this.handleSubmit}>
-                <p className="text-muted">
-                    To perform this operation you need to be logged in the main device.
-                </p>
+                <p className="text-muted">To perform this operation you need to be logged in the main device.</p>
                 <div className="form-group">
                     <label htmlFor="username">Username</label>
                     <input
