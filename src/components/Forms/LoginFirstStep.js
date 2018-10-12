@@ -51,7 +51,7 @@ export default class LoginFirstStep extends Component {
         return (
             <form onSubmit={this.handleSubmit}>
                 <p className="text-muted">
-                    The login process allow you to regenerate your registered master secret, but never falls, it always generate a secret, be sure to set the
+                    The login process allows you to regenerate your registered master secret, but it never fails, it always generates a secret. Be sure to set the
                     right authenticator.
                 </p>
                 <div className="form-group">

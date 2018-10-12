@@ -78,7 +78,6 @@ export default class RegisterForm extends Component {
                         username: form.username,
                         password: form.password
                     },
-                    shards,
                     masterSecret
                 });
             });
@@ -148,7 +147,7 @@ export default class RegisterForm extends Component {
                         </label>
                         <div className="invalid-feedback">{errors.folderInputLabel}</div>
                         <small className="text-muted form-help">
-                            Click to chose a directory where we will save your second factor key file. Keep this file in a secure place on your device.
+                            Click to choose a directory where we will save your second factor key file. Keep this file in a secure place on your device.
                         </small>
                     </div>
                 </div>

@@ -123,7 +123,7 @@ export default class Protected extends Component {
                                     Encrypt file
                                 </button>
                                 <small className="text-muted form-help">
-                                    File encryption will encrypt the content of your loaded file and will replace the old file with encrypted one. The file
+                                    File encryption will encrypt the content of your loaded file and will create a new file with the encrypted content. The encrypted
                                     content will be also displayed on the box below
                                 </small>
                             </div>
@@ -132,8 +132,7 @@ export default class Protected extends Component {
                                     Decrypt
                                 </button>
                                 <small className="text-muted form-help">
-                                    File decryption will decrypt the content of your loaded file and will display the decrypted content on the box below.
-                                    Without change the encrypted file
+                                    File decryption will decrypt the content of your loaded file and will display the decrypted content on the box below, without changing the encrypted file
                                 </small>
                             </div>
                         </div>

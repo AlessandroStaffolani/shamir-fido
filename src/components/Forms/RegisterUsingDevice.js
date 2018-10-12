@@ -72,9 +72,8 @@ export default class RegisterUsingDevice extends Component {
 
     handleSubmit = event => {
         event.preventDefault();
-        const { form, secondFactorFolder, secondFactorFileName } = this.state;
+        const { form, secondFactorFolder } = this.state;
         const { errors, isValid } = validateRegisterInput({ ...form, secondFactorFolder });
-        const fileName = secondFactorFileName || SECOND_FACTOR_FILENAME;
 
         if (isValid) {
             // call submit function
@@ -95,10 +94,30 @@ export default class RegisterUsingDevice extends Component {
     };
 
     onDataCallback = payload => {
+        const { secondFactorFolder, form } = this.state;
+        const fileName = form.secondFactorFileName || SECOND_FACTOR_FILENAME;
+        const fileCompletePath = secondFactorFolder.path + '/' + fileName;
+
         if (this.encryptionPin) {
-            let shardBase64 = authorizeDeviceController.decryptMessage(payload, this.encryptionPin);
-            const shard = Buffer.from(shardBase64, 'base64').toString();
-            console.log(shard);
+            let decryptedPayload = authorizeDeviceController.decryptMessage(payload, this.encryptionPin, true);
+            if (decryptedPayload.shard) {
+                // We have recived the shard now we put into a file
+                const shard = Buffer.from(decryptedPayload.shard, 'base64');
+                secretController.saveShardOnFile(shard, fileCompletePath)
+                    .then(() => {
+                        let shards = secretController.createShardsFromString([form.password]);
+                        shards.push(shard.toString());
+                        const masterSecret = secretController.generateMasterSecret(shards);
+                        this.props.handleSubmit({
+                            userData: {
+                                username: form.username,
+                                password: form.password
+                            },
+                            masterSecret
+                        })
+                    })
+                    .catch(err => console.log(err));
+            }
         }
     }
 
@@ -112,7 +131,7 @@ export default class RegisterUsingDevice extends Component {
         const saveLabel = submitLabel || 'Save';
 
         if (secondStep) {
-            return <RegisterUsingDeviceSecond userData={form} setEncryptionPin={this.setEncryptionPin} />
+            return <RegisterUsingDeviceSecond userData={form} setEncryptionPin={this.setEncryptionPin} submitLabel={'Generate Master Secret'} />
         }
 
         return (
@@ -175,7 +194,7 @@ export default class RegisterUsingDevice extends Component {
                         </label>
                         <div className="invalid-feedback">{errors.folderInputLabel}</div>
                         <small className="text-muted form-help">
-                            Click to chose a directory where we will save your second factor key file. Keep this file in a secure place on your device.
+                            Click to choose a directory where we will save your second factor key file. Keep this file in a secure place on your device.
                         </small>
                     </div>
                 </div>

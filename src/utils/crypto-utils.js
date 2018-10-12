@@ -142,7 +142,7 @@ export const decryptString = (encryptedData, secret, algorithm = 'id-aes256-GCM'
 
         let plainText = decipher.update(data, 'binary', 'utf8');
         plainText += decipher.final('utf8');
-        console.log(plainText);
+        
         return plainText;
     } catch (e) {
         return e;

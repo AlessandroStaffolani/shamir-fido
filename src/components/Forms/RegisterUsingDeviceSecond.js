@@ -69,6 +69,9 @@ export default class RegisterUsingDeviceSecond extends Component {
                 </div>
                 <hr />
                 <div className="text-right">
+                    <p className="text-muted">
+                        After clicking this button you need to click the button "Send new authorization code" in the second device to generate the master secret
+                    </p>
                     <button type="submit" className="btn btn-primary">
                         {saveLabel}
                     </button>

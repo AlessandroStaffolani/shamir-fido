@@ -4,14 +4,22 @@ const generatePin = () => {
     return generateRandomBytes(6, 'hex');
 }
 
-const encryptMessage = (message, secret) => {
+const encryptMessage = (message, secret, isObject = false) => {
     const secretHash = hashString(secret, 'sha256', { asBuffer: true });
-    return encryptString(message, secretHash);
+    let plainText = message;
+    if (isObject) {
+        plainText = JSON.stringify(message);
+    }
+    return encryptString(plainText, secretHash);
 }
 
-const decryptMessage = (messageEncrypted , secret) => {
+const decryptMessage = (messageEncrypted , secret, wasObject = false) => {
     const secretHash = hashString(secret, 'sha256', { asBuffer: true });
-    return decryptString(messageEncrypted, secretHash)
+    let decryptedString = decryptString(messageEncrypted, secretHash);
+    if (wasObject) {
+        return JSON.parse(decryptedString);
+    } 
+    return decryptString;
 }
 
 export default {

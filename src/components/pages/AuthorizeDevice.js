@@ -38,7 +38,15 @@ export default class AuthorizeDevice extends Component {
             const pin = authorizeDeviceController.generatePin();
             this.setState({
                 connectedDevice: client.handshake.address,
-                pin: pin
+                pin: pin,
+                message: {
+                    type: 'info',
+                    content: (
+                        <div>
+                            Other device connected
+                        </div>
+                    )
+                }
             });
         } else {
             client.emit(EVENT_NAME, 'A client is already connected you will be ejected');
@@ -62,9 +70,21 @@ export default class AuthorizeDevice extends Component {
             });
         } else {
             const newShard = secretController.generateNextShard(this.props.userData.username);
-            const newShardEncrypted = authorizeDeviceController.encryptMessage(newShard, pin);
-
-            this.socketServer.emit(newShardEncrypted);
+            let object = {
+                shard: newShard
+            }
+            const objectEncrypted = authorizeDeviceController.encryptMessage(object, pin, true);
+            this.socketServer.emit(objectEncrypted);
+            this.setState({
+                message: {
+                    type: 'success',
+                    content: (
+                        <div>
+                            <strong>Success!</strong> New authorization code send with success
+                        </div>
+                    )
+                }
+            })
         }
     };
 
@@ -78,7 +98,7 @@ export default class AuthorizeDevice extends Component {
                         <h3>Authorize other device</h3>
                         <hr />
                         <p className="text-muted">
-                            Use this section to authorize a new device, we will send to the other connected device the code that will be saved in a file on your
+                            Use this section to authorize a new device, we will send you the code for the other connected device, which will be saved in a file on your
                             new device.
                         </p>
                         <div className="row align-items-start">

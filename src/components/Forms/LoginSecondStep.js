@@ -76,7 +76,7 @@ export default class LoginSecondStep extends Component {
         return (
             <form onSubmit={this.handleSubmit}>
                 <p className="text-muted">
-                    First authentication step complete, now add your second factor to complete authentication and access to your protected area.
+                    First authentication step completed. Now add your second factor to complete authentication and get access to your protected area.
                 </p>
                 <div className="form-group">
                     <label htmlFor="username">Username</label>

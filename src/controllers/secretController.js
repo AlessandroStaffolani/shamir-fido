@@ -23,20 +23,33 @@ const createSecondFactorKeyFile = (password, destination) => {
         let random = generateRandomBytes(256);
         const shards = createShardsFromString([password, random]);
         let randomShardBuffer = Buffer.from(shards[1]);
-        // Master secret not necessary to be created
-        //const nextShard = newShare(shards.length + 1, shards);
 
-        fs.writeFile(destination, randomShardBuffer.toString('base64'), err => {
+        saveShardOnFile(randomShardBuffer, destination)
+            .then(() => {
+                resolve(shards);
+            })
+            .catch(err => reject(err));
+    });
+};
+
+/**
+ * Create a file with a base64 version of a shard
+ * @param {Buffer} shard shard as a Buffer
+ * @param {String} destination destination path of the file
+ */
+const saveShardOnFile = (shard, destination) => {
+    return new Promise((resolve, reject) => {
+        fs.writeFile(destination, shard.toString('base64'), err => {
             if (err) {
                 reject(err);
             } else {
                 resolve({
-                    shards
+                    shard
                 });
             }
         });
     });
-};
+}
 
 const masterSecretFromPasswordAndFile = (password, filePath) => {
     return new Promise((resolve, reject) => {
@@ -89,8 +102,10 @@ const generateNextShard = username => {
 
 export default {
     generateMasterSecret,
+    createShardsFromString,
     createSecondFactorKeyFile,
     masterSecretFromPasswordAndFile,
     masterSecretFromLocalStorage,
+    saveShardOnFile,
     generateNextShard,
 };

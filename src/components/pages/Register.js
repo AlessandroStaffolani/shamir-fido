@@ -27,7 +27,10 @@ export default class Register extends Component {
     };
 
     handleSecondSubmit = data => {
-        console.log(data);
+        this.setState({
+            userData: data.userData,
+            masterSecret: data.masterSecret
+        });
     };
 
     render() {
@@ -56,22 +59,23 @@ export default class Register extends Component {
             content = (
                 <div>
                     <p className="text-muted">
-                        If you have already registered an other device you can authorize this one using the first you had registered.
+                        If you have already registered another device you can authorize it using the first one you had registered.
                         <br />
                         To do it click on the button below.
                     </p>
-                    <p className="text-muted">Otherwise register this device as your main one</p>
-                    <hr />
                     <div className="row">
                         <div className="col-12 col-md-8 offset-md-2 text-center mb-3">
-                            <button className="btn btn-outline-primary btn-block" onClick={(e) => this.setRegisterMode(e, 'second')}>
+                            <button className="btn btn-outline-primary btn-block" onClick={e => this.setRegisterMode(e, 'second')}>
                                 Register using authorized device
                             </button>
                         </div>
                     </div>
+                    <hr />
+                    <p className="text-muted">Otherwise register this device as your main one</p>
+
                     <div className="row">
                         <div className="col-12 col-md-8 offset-md-2 text-center">
-                            <button className="btn btn-outline-primary btn-block" onClick={(e) => this.setRegisterMode(e, 'main')}>
+                            <button className="btn btn-outline-primary btn-block" onClick={e => this.setRegisterMode(e, 'main')}>
                                 Register main device
                             </button>
                         </div>
