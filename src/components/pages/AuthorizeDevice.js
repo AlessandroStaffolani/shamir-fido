@@ -16,11 +16,7 @@ export default class AuthorizeDevice extends Component {
             connectedDevice: '',
             message: {
                 type: 'warning',
-                content: (
-                    <div>
-                        Other device not connected
-                    </div>
-                )
+                content: <div>Other device not connected</div>
             }
         };
 
@@ -115,11 +111,6 @@ export default class AuthorizeDevice extends Component {
                             <div className="col-12 col-md-6">
                                 <KeyField secret={pin} label="Encryption PIN" />
                             </div>
-                            {/* <div className="col-12 col-md-6 offset-md-3">
-                                <button className="btn btn-primary mb-3 btn-block" onClick={this.handleAuthorizeDevice}>
-                                    Send new authorization code
-                                </button>
-                            </div> */}
                         </div>
                         {message ? (
                             <div>
