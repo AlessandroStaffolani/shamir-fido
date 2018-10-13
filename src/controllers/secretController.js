@@ -95,6 +95,7 @@ const masterSecretFromLocalStorage = username => {
 const generateNextShard = (id, username) => {
     const shards = getShardsFromLocalStorage(username);
     if (shards !== null) {
+        console.log(id);
         const nextShard = newShare(id, shards);
         return nextShard.toString('base64');
     }

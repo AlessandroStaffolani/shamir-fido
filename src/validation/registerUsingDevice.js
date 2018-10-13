@@ -7,6 +7,7 @@ const validateRegisterInput = data => {
         password: false,
         device: false,
         folderInputLabel: false,
+        deviceNumber: false,
         secondFactorFileName: false
     };
     let isValid = true;
@@ -16,11 +17,16 @@ const validateRegisterInput = data => {
     data.username = !isEmpty(data.username) ? data.username : '';
     data.password = !isEmpty(data.password) ? data.password : '';
     data.device = !isEmpty(data.device) ? data.device : '';
+    data.deviceNumber = !isEmpty(data.deviceNumber) ? data.deviceNumber.toString() : '';
     data.secondFactorFileName = !isEmpty(data.secondFactorFileName) ? data.secondFactorFileName : '';
 
     if (!validator.isIP(data.device)) {
-        errors.device = 'Device ip must a valid ip';
+        errors.device = 'Device IP must a valid IP';
         isValid = false;
+    }
+
+    if (!validator.isInt(data.deviceNumber, {min: 1, max: 255})) {
+        errors.deviceNumber = 'Device Number must be and integer value between 1 and 255'
     }
 
     if (!validator.isLength(data.password, { min: 8 })) {
@@ -39,7 +45,12 @@ const validateRegisterInput = data => {
     }
 
     if (validator.isEmpty(data.device)) {
-        errors.device = 'Device ip field is required';
+        errors.device = 'Device IP field is required';
+        isValid = false;
+    }
+
+    if (validator.isEmpty(data.deviceNumber)) {
+        errors.device = 'Device Number field is required';
         isValid = false;
     }
 

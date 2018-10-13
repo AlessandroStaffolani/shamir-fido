@@ -60,17 +60,18 @@ export default class AuthorizeDevice extends Component {
     _onClientMessageCallback = message => {
         const decryptedObject = this.socketServer.decryptMessage(message, true);
         // Check if object received contain "pinReceived: true"
-        if (decryptedObject.pinReceived) {
+        if (decryptedObject.pinReceived && decryptedObject.deviceNumber !== undefined) {
             // Send shard
-            this.handleAuthorizeDevice();
+            this.handleAuthorizeDevice(decryptedObject.deviceNumber);
         }
     };
 
-    handleAuthorizeDevice = () => {
-        const { connectedDevice, pin } = this.state;
+    handleAuthorizeDevice = deviceNumber => {
+        const { connectedDevice } = this.state;
 
         if (connectedDevice !== '') {
-            const newShard = secretController.generateNextShard(3, this.props.userData.username);
+            const id = parseInt(deviceNumber, 10) + 1 // +1 Because of password
+            const newShard = secretController.generateNextShard(id, this.props.userData.username);
             let object = {
                 shard: newShard
             };

@@ -17,7 +17,8 @@ export default class RegisterUsingDevice extends Component {
                 password: '',
                 device: '',
                 folderInputLabel: 'Chose ...',
-                secondFactorFileName: SECOND_FACTOR_FILENAME
+                deviceNumber: 2,
+                secondFactorFileName: SECOND_FACTOR_FILENAME + '-2'
             },
             secondFactorFolder: null,
             errors: {
@@ -25,6 +26,7 @@ export default class RegisterUsingDevice extends Component {
                 password: false,
                 device: false,
                 folderInputLabel: false,
+                deviceNumber: false,
                 secondFactorFileName: false
             },
             secondStep: false
@@ -46,6 +48,23 @@ export default class RegisterUsingDevice extends Component {
         const value = event.target.value;
         form[name] = value;
         this.setState({ form });
+        if (name === 'deviceNumber') {
+            this.handleDeviceNumberChange();
+        }
+    };
+
+    handleDeviceNumberChange = () => {
+        const { form } = this.state;
+        const { deviceNumber, secondFactorFileName } = this.state.form;
+        let splittedName = secondFactorFileName.split('-');
+
+        if (splittedName.length === 4) {
+            let defaultStringRecostruction = splittedName[0] + "-" + splittedName[1] + "-" + splittedName[2];
+            if (defaultStringRecostruction === SECOND_FACTOR_FILENAME) {
+                form['secondFactorFileName'] = SECOND_FACTOR_FILENAME + '-' + deviceNumber;
+                this.setState({ form });
+            }
+        }
     };
 
     handleFileChange = () => {
@@ -122,9 +141,13 @@ export default class RegisterUsingDevice extends Component {
     };
 
     setEncryptionPin = pin => {
+        const { deviceNumber } = this.state.form;
         this.encryptionPin = pin;
         this.socketClient.setSecret(this.encryptionPin);
-        this.socketClient.emit({ pinReceived: true }, true);
+        this.socketClient.emit({ 
+            pinReceived: true,
+            deviceNumber
+         }, true);
     };
 
     render() {
@@ -176,7 +199,7 @@ export default class RegisterUsingDevice extends Component {
                         onChange={event => this.handleInputChange(event, 'device')}
                     />
                     <div className="invalid-feedback">{errors.device}</div>
-                    <small className="text-muted form-help">Add your main device ip</small>
+                    <small className="text-muted form-help">Add your main device IP</small>
                 </div>
                 <div className="form-group">
                     <label htmlFor="secondFactorFolder">Chose a folder</label>
@@ -197,6 +220,18 @@ export default class RegisterUsingDevice extends Component {
                             Click to choose a directory where we will save your second factor key file. Keep this file in a secure place on your device.
                         </small>
                     </div>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="deviceNumber">Device Number</label>
+                    <input
+                        type="number"
+                        className={errors.deviceNumber ? 'form-control is-invalid' : 'form-control'}
+                        id="deviceNumber"
+                        value={form.deviceNumber}
+                        onChange={event => this.handleInputChange(event, 'deviceNumber')}
+                    />
+                    <div className="invalid-feedback">{errors.deviceNumber}</div>
+                    <small className="text-muted form-help">Specify how many device you had registered including this one</small>
                 </div>
                 <div className="form-group">
                     <label htmlFor="secondFactorFileName">Second Factor File Name</label>
