@@ -59,7 +59,7 @@ export default class RegisterUsingDevice extends Component {
         let splittedName = secondFactorFileName.split('-');
 
         if (splittedName.length === 4) {
-            let defaultStringRecostruction = splittedName[0] + "-" + splittedName[1] + "-" + splittedName[2];
+            let defaultStringRecostruction = splittedName[0] + '-' + splittedName[1] + '-' + splittedName[2];
             if (defaultStringRecostruction === SECOND_FACTOR_FILENAME) {
                 form['secondFactorFileName'] = SECOND_FACTOR_FILENAME + '-' + deviceNumber;
                 this.setState({ form });
@@ -106,7 +106,8 @@ export default class RegisterUsingDevice extends Component {
     };
 
     connectToMainDevice = formData => {
-        this.socketClient = new SocketClient(formData.device, SOCKET_PORT, { autoIniti: false, secure: true });
+        let host = 'http://' + formData.device;
+        this.socketClient = new SocketClient(host, SOCKET_PORT, { autoIniti: false, secure: true });
         this.socketClient.setOnDataCallback(this._onDataCallback);
         this.socketClient.init();
     };
@@ -144,10 +145,13 @@ export default class RegisterUsingDevice extends Component {
         const { deviceNumber } = this.state.form;
         this.encryptionPin = pin;
         this.socketClient.setSecret(this.encryptionPin);
-        this.socketClient.emit({ 
-            pinReceived: true,
-            deviceNumber
-         }, true);
+        this.socketClient.emit(
+            {
+                pinReceived: true,
+                deviceNumber
+            },
+            true
+        );
     };
 
     render() {

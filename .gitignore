@@ -65,3 +65,6 @@ build/
 
 # files for testing encryption
 test-file/
+
+# MacOs folder file
+.DS_STORE
