@@ -79,7 +79,7 @@ export default class App extends Component {
                 content = loginContent;
                 break;
             case routes.register.code:
-                content = <Register setShards={this.setShards} setMasterSecret={this.setMasterSecret} />;
+                content = <Register setShards={this.setShards} setMasterSecret={this.setMasterSecret} handleLinkNavigation={this.handleLinkNavigation} />;
                 break;
             case routes.protected.code:
                 content = userLogged ? <Protected userData={userLogged} setMessage={this.setMessage} /> : loginContent;

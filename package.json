@@ -30,6 +30,9 @@
     "url": "https://github.com/ale8193/shamir-fido/issues"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.6",
+    "@fortawesome/free-solid-svg-icons": "^5.4.1",
+    "@fortawesome/react-fontawesome": "^0.1.3",
     "base64-js": "^1.3.0",
     "buffer": "^5.2.1",
     "jquery": "^3.3.1",

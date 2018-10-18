@@ -33,6 +33,11 @@ export default class Register extends Component {
         });
     };
 
+    handleLinkClick = (event, path) => {
+        event.preventDefault();
+        this.props.handleLinkNavigation(path);
+    };
+
     render() {
         const { masterSecret, registerMode } = this.state;
 
@@ -45,14 +50,18 @@ export default class Register extends Component {
                         dismissable={true}
                         content={
                             <div>
-                                <strong className="d-block">Success! Master Secret Generated</strong>
+                                <strong className="d-block">Success! Master Secret enabled for this device!</strong>
                                 <small className="form-help">
                                     This secret will be used to encrypt and decrypt your files, to regenerate it add your password and second factor file.
+                                    <br />
+                                    Now go to login page to use it.
                                 </small>
                             </div>
                         }
                     />
-                    <KeyField secret={masterSecret} label="Your master secret" info="Use the button to copy on your clipboard or scan the QR-code" />
+                    <div className="text-center">
+                        <button className="btn btn-primary" onClick={event => this.handleLinkClick(event, 'login')}>Go to Login</button>
+                    </div>
                 </div>
             );
         } else if (registerMode === null) {
