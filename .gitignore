@@ -68,3 +68,6 @@ test-file/
 
 # MacOs folder file
 .DS_STORE
+
+# Electron distribution app
+dist

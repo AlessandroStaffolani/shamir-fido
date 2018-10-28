@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import RegisterForm from '../Forms/RegisterForm';
-import KeyField from '../Forms/KeyField';
 import Alert from '../base/Alert';
 import RegisterUsingDevice from '../Forms/RegisterUsingDevice';
 

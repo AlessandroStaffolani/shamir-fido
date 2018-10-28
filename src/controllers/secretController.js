@@ -1,6 +1,5 @@
 import { combine, add_prefix_to_shard, newShare } from '../shamir';
-import { hashString, hashFile, generateRandomBytes } from '../utils/crypto-utils';
-import { internal_to_textField } from '../shamir/representation';
+import { hashString, generateRandomBytes } from '../utils/crypto-utils';
 const app = window.require('electron');
 const fs = app.remote.require('fs');
 
@@ -79,7 +78,7 @@ const getShardsFromLocalStorage = username => {
         const shards = shardsString.split(',');
         return shards;
     } else {
-        null;
+        return null;
     }
 };
 
@@ -88,7 +87,7 @@ const masterSecretFromLocalStorage = username => {
     if (shards !== null) {
         return generateMasterSecret(shards);
     } else {
-        null;
+        return null;
     }
 };
 

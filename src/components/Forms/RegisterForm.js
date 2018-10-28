@@ -165,7 +165,7 @@ export default class RegisterForm extends Component {
                 </div>
                 <hr />
                 <div className="text-right">
-                    <a href="#" className="btn btn-outline-secondary mr-3" onClick={(e) => setRegisterMode(e, null)}>
+                    <a href="#!" className="btn btn-outline-secondary mr-3" onClick={(e) => setRegisterMode(e, null)}>
                         Back
                     </a>
                     <button type="submit" className="btn btn-primary">
