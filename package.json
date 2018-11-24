@@ -12,8 +12,8 @@
         "electron-build": "electron-builder",
         "release": "yarn react-build && electron-builder -mwl",
         "build": "yarn react-build && yarn electron-build",
-        "start": "NODE_ENV=production electron .",
-        "dev": "concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\""
+        "start": "electron .",
+        "dev": "concurrently \"BROWSER=none yarn react-start\" \"wait-on http://localhost:3000 && NODE_ENV=development electron .\""
     },
     "repository": {
         "type": "git",
