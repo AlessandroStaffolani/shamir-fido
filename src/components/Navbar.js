@@ -13,6 +13,12 @@ export default class Navbar extends Component {
         this.handleLinkClick = this.handleLinkClick.bind(this);
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.props.userLogged !== prevProps.userLogged) {
+            this.setState({ userLogged: this.props.userLogged });
+        }
+    }
+
     handleLinkClick = (event, path) => {
         event.preventDefault();
         this.props.handleLinkNavigation(path);

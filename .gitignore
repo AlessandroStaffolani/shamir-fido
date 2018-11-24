@@ -59,3 +59,15 @@ typings/
 
 # next.js build output
 .next
+
+# React build
+build/
+
+# files for testing encryption
+test-file/
+
+# MacOs folder file
+.DS_STORE
+
+# Electron distribution app
+dist

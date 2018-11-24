@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import Navbar from './components/Navbar';
 import { routes } from './routes/routes';
-import Login from './components/Login';
-import RegisterForm from './components/RegisterForm';
-import Protected from './components/Protected';
+import Login from './components/pages/Login';
+import Register from './components/pages/Register';
+import Protected from './components/pages/Protected';
 import Footer from './components/Footer';
+import Alert from './components/base/Alert';
+import AuthorizeDevice from './components/pages/AuthorizeDevice';
 
 export default class App extends Component {
     constructor(props) {
@@ -12,14 +14,16 @@ export default class App extends Component {
         this.state = {
             userLogged: false,
             currentPage: routes.home,
-            content: ''
+            content: <Login handlePostLogin={this.handlePostLogin} />,
+            message: false
         };
 
         this.handleLinkNavigation = this.handleLinkNavigation.bind(this);
+        this.handlePostLogin = this.handlePostLogin.bind(this);
     }
 
     componentDidMount() {
-        this.setState({ content: <Login /> });
+        this.setAppContent();
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -46,40 +50,79 @@ export default class App extends Component {
         }
     };
 
+    handlePostLogin = data => {
+        localStorage.setItem(data.userData.username, data.shards);
+        this.setState({
+            userLogged: data.userData,
+            currentPage: routes.protected,
+            message: {
+                type: 'success',
+                dismissable: true,
+                content: 'Welcome back ' + data.userData.username
+            }
+        });
+    };
+
+    setMessage = message => {
+        this.setState({message})
+    }
+
     setAppContent = () => {
         const { currentPage, userLogged } = this.state;
+        const loginContent = <Login handlePostLogin={this.handlePostLogin} />;
         let content = '';
         switch (currentPage.code) {
             case routes.home.code:
-                content = <Login />;
+                content = userLogged ? <Protected userData={userLogged} setMessage={this.setMessage} /> : loginContent;
                 break;
             case routes.login.code:
-                content = <Login />;
+                content = loginContent;
                 break;
             case routes.register.code:
-                content = <RegisterForm />;
+                content = <Register setShards={this.setShards} setMasterSecret={this.setMasterSecret} handleLinkNavigation={this.handleLinkNavigation} />;
                 break;
             case routes.protected.code:
-                content = userLogged ? <Protected userLogged={userLogged} /> : <Login />;
+                content = userLogged ? <Protected userData={userLogged} setMessage={this.setMessage} /> : loginContent;
+                break;
+            case routes.authorize_device.code: 
+                content = userLogged ? <AuthorizeDevice userData={userLogged} /> : loginContent;
+                break;
+            case routes.logout.code:
+                content = loginContent;
+                this.logout();
                 break;
             default:
-                content = <Login />;
+                content = loginContent;
         }
-        this.setState({ content });
+        this.setState({
+            content
+        });
+    };
+
+    logout = () => {
+        const { userLogged } = this.state;
+        localStorage.removeItem(userLogged.username);
+        this.setState({ userLogged: false, message: false });
     };
 
     render() {
+        const { message, content } = this.state;
         return (
             <div className="body">
                 <Navbar handleLinkNavigation={this.handleLinkNavigation} userLogged={this.state.userLogged} />
-                <div className="content">
-                    <div className="container mt-5">
-                        <div className="row">
-                            <div className="col-12">{this.state.content}</div>
+                <div className="wrapper">
+                    <div className="content">
+                        <div className="container mt-5">
+                            <div className="row">
+                                <div className="col-12">
+                                    {message ? <Alert type={message.type} dismissable={message.dismissable} content={message.content} /> : ''}
+                                    {content}
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    <Footer />
                 </div>
-                <Footer />
             </div>
         );
     }

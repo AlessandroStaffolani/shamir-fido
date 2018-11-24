@@ -23,6 +23,14 @@ const routes = {
         back: 'home',
         protected: false,
     },
+    authorize_device: {
+        label: 'Authorize other device',
+        code: 'authorize_device',
+        title: 'Authorize other device',
+        visibility: 'navbar',
+        back: 'home',
+        protected: true,
+    },
     protected: {
         label: 'Protected Area',
         code: 'protected',

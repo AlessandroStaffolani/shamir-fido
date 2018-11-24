@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import ExternalLink from './ExternalLink';
-const electron = window.require('electron');
+import ExternalLink from './base/ExternalLink';
+const app = window.require('electron');
 
 export default class Footer extends Component {
     render() {
@@ -21,8 +21,8 @@ export default class Footer extends Component {
                         />
                     </p>
                     <p className="versions">
-                        Node.js: {electron.remote.process.versions.node} - Chrome: {electron.remote.process.versions.chrome} - Electron:{' '}
-                        {electron.remote.process.versions.electron} - V8: {electron.remote.process.versions.v8}
+                        Node.js: {app.remote.process.versions.node} - Chrome: {app.remote.process.versions.chrome} - Electron:{' '}
+                        {app.remote.process.versions.electron} - V8: {app.remote.process.versions.v8}
                     </p>
                 </div>
             </div>
