@@ -1,5 +1,5 @@
 # Shamir FIDO
-Project for a simple electron application that use shamir's secret sharing and FIDO 2 factor authentication
+Project for a simple electron application that uses shamir's secret sharing and FIDO 2-factor-authentication
 ## Installation
 To install this application run:
 ```
