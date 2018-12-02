@@ -1,7 +1,9 @@
-import { generateRandomBytes, hashString, encryptString, decryptString } from '../utils/crypto-utils';
+import { generateRandomBytes, hashString, encryptString, decryptString, secret_pbkdf2 } from '../utils/crypto-utils';
 
 const generatePin = () => {
-    return generateRandomBytes(6, 'hex');
+    const secret = generateRandomBytes(256, 'hex');
+    const salt = generateRandomBytes(64);
+    return secret_pbkdf2(secret, salt, 100, 6, 'sha256');
 }
 
 const encryptMessage = (message, secret, isObject = false) => {

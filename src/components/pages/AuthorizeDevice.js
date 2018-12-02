@@ -38,18 +38,20 @@ export default class AuthorizeDevice extends Component {
         if (this.socketServer.getConnectedClient() === null) {
             this.socketServer.setConnectedClient(client);
 
-            const pin = authorizeDeviceController.generatePin();
-            this.socketServer.setSecret(pin);
+            const pinPromise = authorizeDeviceController.generatePin();
+            pinPromise.then(pin => {
+                this.socketServer.setSecret(pin);
 
-            client.on(EVENT_NAME, this._onClientMessageCallback);
+                client.on(EVENT_NAME, this._onClientMessageCallback);
 
-            this.setState({
-                connectedDevice: client.handshake.address,
-                pin: pin,
-                message: {
-                    type: 'info',
-                    content: <div>Other device connected</div>
-                }
+                this.setState({
+                    connectedDevice: client.handshake.address,
+                    pin: pin,
+                    message: {
+                        type: 'info',
+                        content: <div>Other device connected</div>
+                    }
+                });
             });
         } else {
             this.socketServer.emitTo(client, { msg: 'A client is already connected you will be ejected' });
@@ -70,7 +72,7 @@ export default class AuthorizeDevice extends Component {
         const { connectedDevice } = this.state;
 
         if (connectedDevice !== '') {
-            const id = parseInt(deviceNumber, 10) + 1 // +1 Because of password
+            const id = parseInt(deviceNumber, 10) + 1; // +1 Because of password
             const newShard = secretController.generateNextShard(id, this.props.userData.username);
             let object = {
                 shard: newShard

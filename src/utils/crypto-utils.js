@@ -123,7 +123,6 @@ export const encryptString = (plainText, secret, algorithm = 'id-aes256-GCM') =>
         let authTag = cipher.getAuthTag();
 
         return Buffer.concat([Buffer.from(iv), Buffer.from(authTag), encryptedData]).toString('base64');
-
     } catch (e) {
         return e;
     }
@@ -142,7 +141,7 @@ export const decryptString = (encryptedData, secret, algorithm = 'id-aes256-GCM'
 
         let plainText = decipher.update(data, 'binary', 'utf8');
         plainText += decipher.final('utf8');
-        
+
         return plainText;
     } catch (e) {
         return e;
@@ -159,4 +158,16 @@ export const generateRandomBytes = (size, format = undefined) => {
     } else {
         return random;
     }
+};
+
+export const secret_pbkdf2 = (secret, salt, iteration = 100, keylen = 64, algorithm = 'sha256') => {
+    return new Promise((resolve, reject) => {
+        crypto.pbkdf2(secret, salt, iteration, keylen, algorithm, (err, derivedKey) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(derivedKey.toString('hex'));
+            }
+        });
+    });
 };
