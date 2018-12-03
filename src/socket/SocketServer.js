@@ -95,6 +95,11 @@ class SocketServer {
 
     decryptMessage = (encrypted, wasObject = false) => {
         let decryptedString = decryptString(encrypted, this.secret);
+        if (decryptedString instanceof Error) {
+            return {
+                error: true
+            };
+        }
         if (wasObject) {
             return JSON.parse(decryptedString);
         }
