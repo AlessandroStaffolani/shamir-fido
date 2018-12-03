@@ -38,20 +38,18 @@ export default class AuthorizeDevice extends Component {
         if (this.socketServer.getConnectedClient() === null) {
             this.socketServer.setConnectedClient(client);
 
-            const pinPromise = authorizeDeviceController.generatePin();
-            pinPromise.then(pin => {
-                this.socketServer.setSecret(pin);
+            const pin = authorizeDeviceController.generatePin();
+            this.socketServer.setSecret(pin);
 
-                client.on(EVENT_NAME, this._onClientMessageCallback);
+            client.on(EVENT_NAME, this._onClientMessageCallback);
 
-                this.setState({
-                    connectedDevice: client.handshake.address,
-                    pin: pin,
-                    message: {
-                        type: 'info',
-                        content: <div>Other device connected</div>
-                    }
-                });
+            this.setState({
+                connectedDevice: client.handshake.address,
+                pin: pin,
+                message: {
+                    type: 'info',
+                    content: <div>Other device connected</div>
+                }
             });
         } else {
             this.socketServer.emitTo(client, { msg: 'A client is already connected you will be ejected' });
@@ -65,6 +63,17 @@ export default class AuthorizeDevice extends Component {
         if (decryptedObject.pinReceived && decryptedObject.deviceNumber !== undefined) {
             // Send shard
             this.handleAuthorizeDevice(decryptedObject.deviceNumber);
+        } else if (decryptedObject.error) {
+            this.setState({
+                message: {
+                    type: 'danger',
+                    content: (
+                        <div>
+                            <strong>Error!</strong> Channel decription error, PIN is correct?
+                        </div>
+                    )
+                }
+            });
         }
     };
 
@@ -105,13 +114,13 @@ export default class AuthorizeDevice extends Component {
                             on your new device.
                         </p>
                         <div className="row align-items-start">
-                            <div className="col-12 col-md-6">
+                            <div className="col-12 col-md-4">
                                 <div className="form-group">
                                     <label htmlFor="connectedDevice">Device connected ip</label>
                                     <input type="text" disabled={true} value={connectedDevice} className="form-control" id="connectedDevice" />
                                 </div>
                             </div>
-                            <div className="col-12 col-md-6">
+                            <div className="col-12 col-md-8">
                                 <KeyField secret={pin} label="Encryption PIN" />
                             </div>
                         </div>

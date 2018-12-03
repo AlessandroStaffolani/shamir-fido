@@ -28,12 +28,12 @@ export default class KeyField extends Component {
             <div className="key-input mb-3">
                 <label htmlFor="masterSecret">{label}</label>
                 <div className="row align-items-center mb-3">
-                    <div className="col-8 col-md-12 col-lg-8 col-xl-9">
+                    <div className="col-8 col-md-12 col-lg-9 col-xl-9">
                         <div className="form-group m-0">
                             <input id="masterSecret" className="form-control" type="text" placeholder={secret} readOnly />
                         </div>
                     </div>
-                    <div className="col-4 mt-0 mt-md-3 mt-lg-0 col-md-12 col-lg-4 col-xl-3">
+                    <div className="col-4 mt-0 mt-md-3 mt-lg-0 col-md-12 col-lg-3 col-xl-3">
                         <button className="btn btn-info mr-3" title="Copy key in your clipboard" onClick={this.copy}>
                             <FontAwesomeIcon icon={faCopy} />
                         </button>
