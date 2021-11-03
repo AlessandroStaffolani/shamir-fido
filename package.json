@@ -46,7 +46,7 @@
         "secrets.js-grempe": "^1.1.0",
         "socket.io": "^2.1.1",
         "socket.io-client": "^2.1.1",
-        "validator": "^10.7.1"
+        "validator": "^13.7.0"
     },
     "devDependencies": {
         "concurrently": "^4.0.1",
